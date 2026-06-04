@@ -1,0 +1,144 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Playfair+Display:ital@1&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+.app{background:#f7f7e4;font-family:'Nunito',sans-serif;min-height:860px;width:100%}
+.stripe{height:16px;background:repeating-linear-gradient(90deg,#a3cdd9 0,#a3cdd9 30px,#f7f7e4 30px,#f7f7e4 60px)}
+.login{display:flex;flex-direction:column;align-items:center;padding:44px 24px 24px}
+.app-name{font-family:'Playfair Display',serif;font-style:italic;font-size:42px;color:#635535;letter-spacing:1px;margin-bottom:6px}
+.app-sub{font-size:11px;color:#b0c8d0;letter-spacing:3px;text-transform:uppercase;margin-bottom:36px;font-weight:300}
+.role-card{background:#fff;border-radius:14px;border:1.5px solid #e8e6cc;padding:13px 16px;display:flex;align-items:center;gap:12px;width:100%;margin-bottom:9px}
+.role-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.role-name{font-size:14px;font-weight:700;color:#635535}
+.role-desc{font-size:11px;color:#b0a88a;margin-top:1px}
+.role-arrow{margin-left:auto;color:#c8dde3;font-size:20px;font-weight:300}
+.divider{height:1.5px;background:#e8e6cc;margin:20px 0}
+.header{background:#f7f7e4;padding:0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid #e8e6cc;height:50px}
+.h-name{font-family:'Playfair Display',serif;font-style:italic;font-size:20px;color:#635535}
+.h-role{background:#a3cdd9;color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.5px}
+.tabs{display:flex;background:#eeedc8;margin:12px 16px;border-radius:12px;padding:3px;gap:2px}
+.tab{flex:1;text-align:center;padding:6px 2px;font-size:10px;font-weight:700;color:#b0a88a;border-radius:10px;letter-spacing:.3px}
+.tab.active{background:#fff;color:#635535}
+.stats-row{display:flex;gap:8px;margin:0 16px 12px}
+.stat{flex:1;background:#fff;border-radius:12px;border:1.5px solid #e8e6cc;padding:9px 8px;text-align:center}
+.stat-val{font-size:20px;font-weight:700;color:#635535}
+.stat-lbl{font-size:9px;color:#b0a88a;margin-top:1px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.card{background:#fff;border-radius:14px;border:1.5px solid #e8e6cc;padding:12px 14px;margin:0 16px 9px}
+.card-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.card-num{font-size:12px;font-weight:700;color:#635535}
+.badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;letter-spacing:.3px}
+.b-work{background:#daeef5;color:#3a8fa3}
+.b-new{background:#f0efb1;color:#8a7a30}
+.b-ready{background:#d9f0e3;color:#2a7a45}
+.b-urgent{background:#f5dada;color:#6e2222}
+.b-paid{background:#d9f0e3;color:#2a7a45}
+.card-client{font-size:13px;color:#635535;font-weight:700;margin-bottom:7px}
+.accent-line{height:2px;border-radius:2px;margin:7px 0;background:repeating-linear-gradient(90deg,#a3cdd9 0,#a3cdd9 16px,#f0efb1 16px,#f0efb1 32px)}
+.cf{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid #f5f3e0}
+.cf:last-of-type{border:none}
+.cf-l{color:#b0a88a}
+.cf-v{color:#635535;font-weight:600}
+.card-foot{display:flex;align-items:flex-end;justify-content:space-between;margin-top:9px;gap:8px}
+.foot-left{display:flex;flex-direction:column;gap:3px;flex:1}
+.foot-lbl{font-size:9px;color:#b0a88a;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.st-sel{background:#f7f7e4;border:1.5px solid #e8e6cc;border-radius:8px;font-size:11px;color:#635535;padding:4px 7px;font-family:'Nunito',sans-serif;font-weight:600;width:100%}
+.btn-edit{background:none;border:1.5px solid #e8e6cc;border-radius:8px;padding:4px 9px;font-size:11px;color:#a0906a;font-weight:600;white-space:nowrap;flex-shrink:0}
+</style>
+
+<div class="app">
+<div class="stripe"></div>
+
+<div class="login">
+  <div class="app-name">Марковка</div>
+  <div class="app-sub">новорожденная игрушка</div>
+
+  <div class="role-card">
+    <div class="role-dot" style="background:#f0d060"></div>
+    <div>
+      <div class="role-name">Александра</div>
+      <div class="role-desc">Менеджер · финансы · все данные</div>
+    </div>
+    <div class="role-arrow">›</div>
+  </div>
+  <div class="role-card">
+    <div class="role-dot" style="background:#a3cdd9"></div>
+    <div>
+      <div class="role-name">Даша</div>
+      <div class="role-desc">Руководитель · заказы · сроки</div>
+    </div>
+    <div class="role-arrow">›</div>
+  </div>
+  <div class="role-card">
+    <div class="role-dot" style="background:#c8a882"></div>
+    <div>
+      <div class="role-name">Света</div>
+      <div class="role-desc">Мастер · мои заказы</div>
+    </div>
+    <div class="role-arrow">›</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="header">
+  <div class="h-name">Марковка</div>
+  <div class="h-role">Менеджер</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active">Заказы</div>
+  <div class="tab">Календарь</div>
+  <div class="tab">Добавить</div>
+  <div class="tab">Итоги</div>
+</div>
+
+<div class="stats-row">
+  <div class="stat"><div class="stat-val">12</div><div class="stat-lbl">заказов</div></div>
+  <div class="stat"><div class="stat-val" style="color:#3a8fa3">4</div><div class="stat-lbl">в работе</div></div>
+  <div class="stat"><div class="stat-val" style="color:#6e2222">2</div><div class="stat-lbl">срочных</div></div>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <span class="card-num">М-007</span>
+    <span class="badge b-work">В работе</span>
+    <span class="badge b-urgent">Срочно</span>
+  </div>
+  <div class="card-client">Анна Петрова</div>
+  <div class="accent-line"></div>
+  <div class="cf"><span class="cf-l">Игрушка</span><span class="cf-v">Мишка 3200г</span></div>
+  <div class="cf"><span class="cf-l">Мастер</span><span class="cf-v">Света</span></div>
+  <div class="cf"><span class="cf-l">Цена</span><span class="cf-v">14 000 ₽</span></div>
+  <div class="cf"><span class="cf-l">Предоплата</span><span class="cf-v" style="color:#2a7a45">7 000 ₽</span></div>
+  <div class="card-foot">
+    <div class="foot-left">
+      <span class="foot-lbl">Статус</span>
+      <select class="st-sel"><option>В работе</option><option>Новый</option><option>Готов</option><option>Отправлен</option></select>
+    </div>
+    <button class="btn-edit">✏️ Изменить</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <span class="card-num">М-008</span>
+    <span class="badge b-new">Новый</span>
+    <span class="badge b-paid">Оплачен</span>
+  </div>
+  <div class="card-client">Мария Сидорова</div>
+  <div class="accent-line"></div>
+  <div class="cf"><span class="cf-l">Игрушка</span><span class="cf-v">Мишка 4200г</span></div>
+  <div class="cf"><span class="cf-l">Мастер</span><span class="cf-v">Даша</span></div>
+  <div class="cf"><span class="cf-l">Цена</span><span class="cf-v">15 500 ₽</span></div>
+  <div class="card-foot">
+    <div class="foot-left">
+      <span class="foot-lbl">Статус</span>
+      <select class="st-sel"><option>Новый</option><option>В работе</option><option>Готов</option></select>
+    </div>
+    <button class="btn-edit">✏️ Изменить</button>
+  </div>
+</div>
+
+<div style="height:16px"></div>
+<div class="stripe"></div>
+</div>
