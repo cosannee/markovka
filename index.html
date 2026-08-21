@@ -3,1078 +3,357 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Марковка</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>Марковка — расчёт стоимости</title>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#FAF7EE">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#f7f7e4;--bg2:#eeedc8;--bg3:#e5e4b0;--card:#ffffff;
-  --accent:#635535;--accent2:#8a7a50;--accent-bg:#f0efb1;
-  --text1:#3a3020;--text2:#635535;--text3:#b0a882;
-  --border:#e8e6cc;--border2:#d8d5b0;
-  --green:#2a7a45;--green-bg:#d9f0e3;
-  --blue:#3a8fa3;--blue-bg:#daeef5;
-  --red:#6e2222;--red-bg:#f5dada;
-  --orange:#8a7a30;--orange-bg:#f0efb1;
-  --purple:#6b52a0;--purple-bg:#f2eefa;
-  --gray:#7a7570;--gray-bg:#f5f2ef;
-  --r:10px;--r2:16px;
-  --sh:0 1px 8px rgba(60,48,32,.06);
-  --sh2:0 4px 20px rgba(60,48,32,.10);
+  --bg:#FAF7EE;--bg2:#F4EFE1;--bg3:#EFE8D4;--card:#FFFFFF;
+  --input-bg:#F4F1E9;--divider:#EDE8DB;
+  --accent:#456DA8;--accent2:#375A8C;--accent-bg:#ECF0F6;--on-accent:#FFFFFF;
+  --text1:#2C2E33;--text2:#61646B;--text3:#767A82;--placeholder:#A9ACB2;
+  --border:#EFEBE0;--border2:#E4DFD1;
+  --green:#9CA764;--green-ink:#5E6A34;--green-bg:#F0F2E3;
+  --red:#C08279;--red-ink:#8F5148;--red-bg:#F7EDEB;
+  --orange:#C9A65E;--orange-ink:#856426;--orange-bg:#F8F2E4;
+  --r:12px;--r2:18px;
+  --sh:0 1px 2px rgba(44,46,51,.04),0 6px 18px rgba(44,46,51,.05);
+  --sh2:0 2px 6px rgba(44,46,51,.05),0 16px 40px rgba(44,46,51,.08);
 }
-body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text1);font-size:14px;min-height:100vh;overflow-x:hidden}
-.stripe-bar{height:14px;background:repeating-linear-gradient(90deg,#a3cdd9 0,#a3cdd9 28px,#f7f7e4 28px,#f7f7e4 56px)}
-#login{min-height:90vh;display:flex;align-items:center;justify-content:center;background:var(--bg)}
-.login-wrap{width:100%;max-width:340px;padding:32px 20px 20px}
-.login-sub{text-align:center;font-size:13px;color:var(--text3);margin-bottom:28px}
-#app{display:none;flex-direction:column;min-height:100vh}
-.app-header{background:var(--card);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:var(--sh)}
-.h-logo{font-family:'Playfair Display',serif;font-style:italic;font-size:19px;color:var(--accent)}
-.h-role{font-size:11px;color:#fff;background:var(--blue);padding:3px 10px;border-radius:20px;font-weight:700}
-.h-right{display:flex;align-items:center;gap:8px}
-.btn-icon{background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:6px;border-radius:8px;line-height:1}
-.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{flex:1;min-width:0;padding:11px 4px;border:none;background:none;font-family:'Nunito',sans-serif;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;display:flex;flex-direction:column;align-items:center;gap:2px}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.main{padding:14px;flex:1;max-width:600px;width:100%;margin:0 auto}
-.card{background:var(--card);border-radius:var(--r2);border:1px solid var(--border);box-shadow:var(--sh);overflow:hidden}
-.card+.card{margin-top:10px}
-.card.urgent{border-left:3px solid var(--red)}
-.card-head{padding:12px 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.card-num{font-family:'Playfair Display',serif;font-size:14px;color:var(--accent);font-weight:600}
-.card-name{font-size:14px;font-weight:600;color:var(--text1);margin-top:1px}
-.card-body{padding:10px 14px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.cf{display:flex;flex-direction:column;gap:1px}
-.cf-l{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:600}
-.cf-v{font-size:13px;color:var(--text1);font-weight:500}
-.card-foot{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.card-comment{font-size:11px;color:var(--text3);font-style:italic;flex:1}
-.badge{padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:3px;white-space:nowrap;letter-spacing:.2px}
-.b-new{background:#daeef5;color:#3a8fa3}
-.b-work{background:#f0efb1;color:#8a7a30}
-.b-ready{background:#d9f0e3;color:#2a7a45}
-.b-sent{background:#ece8f8;color:#6b52a0}
-.b-done{background:#f0f0ec;color:#7a7570}
-.b-urgent{background:#f5dada;color:#6e2222}
-.b-paid{background:#d9f0e3;color:#2a7a45}
-.b-part{background:#f0efb1;color:#8a7a30}
-.b-sdek{background:#daeef5;color:#3a8fa3}
-.b-inst{background:#fce8f0;color:#b0366a}
-.b-wait{background:#daeef5;color:#3a8fa3}
-.b-pers{background:#ece8f8;color:#6b52a0}
-.b-site{background:#daeef5;color:#3a8fa3}
-.b-advance{background:#fff3cd;color:#856404}
-.b-postpay{background:#d1ecf1;color:#0c5460}
-.st-select{padding:6px 10px;border-radius:8px;border:1px solid var(--border2);font-family:'Nunito',sans-serif;font-size:12px;background:var(--bg);color:var(--text1);cursor:pointer;outline:none}
-.btn{padding:9px 18px;border-radius:var(--r);border:none;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
-.btn:active{transform:scale(.97)}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-secondary{background:var(--bg2);color:var(--text2);border:1px solid var(--border2)}
-.btn-sm{padding:5px 11px;font-size:11px}
-.btn-full{width:100%;justify-content:center}
-.btn-ghost{background:none;border:1px solid var(--border);color:var(--text3)}
-.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid #f0c0c0}
-.btn-green{background:var(--green-bg);color:var(--green);border:1px solid #b0dcc0}
-.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
-.chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--card);font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
-.chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
-.search-inp{padding:7px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--card);font-family:'Nunito',sans-serif;font-size:13px;color:var(--text1);outline:none;flex:1;min-width:120px}
-.search-inp:focus{border-color:var(--accent)}
-.form-section{background:var(--card);border-radius:var(--r2);border:1px solid var(--border);padding:16px;box-shadow:var(--sh);margin-bottom:12px}
-.form-title{font-family:'Playfair Display',serif;font-size:16px;color:var(--text1);margin-bottom:14px}
+body{font-family:'Golos Text',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text1);font-size:14px;min-height:100vh;overflow-x:hidden}
+input,textarea,select,button{font-family:'Golos Text',-apple-system,BlinkMacSystemFont,sans-serif}
+.wrap{max-width:520px;margin:0 auto;padding:44px 16px 60px}
+.login-mark{color:var(--text1);display:flex;justify-content:center;align-items:center;padding:10px 0 22px;min-height:90px}
+.logo-mark{width:min(260px,70%);height:auto;display:block;color:inherit;aspect-ratio:1348/390}
+.tagline{text-align:center;font-size:13px;color:var(--text3);margin-bottom:28px;letter-spacing:.2px}
+.welcome{text-align:center;margin-bottom:22px}
+.welcome-title{font-weight:700;letter-spacing:-.4px;font-size:21px;color:var(--text1);line-height:1.3;margin-bottom:12px}
+.welcome-text{font-size:13px;color:var(--text2);line-height:1.7;max-width:420px;margin:0 auto}
+.card{background:var(--card);border-radius:var(--r2);box-shadow:var(--sh);padding:18px;margin-bottom:14px}
+.card-title{font-weight:700;letter-spacing:-.4px;font-size:18px;color:var(--text1);margin-bottom:4px}
+.card-sub{font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.5}
 .fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
-.fg label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.4px}
-.fg input,.fg select,.fg textarea{padding:9px 12px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg);font-family:'Nunito',sans-serif;font-size:13px;color:var(--text1);outline:none;transition:border-color .15s;width:100%}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent)}
-.fg textarea{resize:vertical;min-height:60px}
+.fg label{font-size:11px;font-weight:500;color:var(--text2)}
+.fg .hint{font-weight:400;color:var(--text3)}
+.fg input,.fg select,.fg textarea{padding:10px 13px;border-radius:var(--r);border:none;background:var(--input-bg);font-size:14px;color:var(--text1);outline:none;transition:box-shadow .15s,background .15s;width:100%;-webkit-appearance:none;appearance:none}
+.fg input:focus,.fg select:focus,.fg textarea:focus{background:var(--card);box-shadow:0 0 0 3px var(--accent-bg)}
+.fg textarea{resize:vertical;min-height:70px}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
 .span2{grid-column:span 2}
-.checkbox-row{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:6px 0}
-.checkbox-row input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.stat-card{background:var(--card);border-radius:var(--r2);padding:14px;border:1px solid var(--border);box-shadow:var(--sh)}
-.stat-val{font-family:'Playfair Display',serif;font-size:24px;color:var(--accent);font-weight:600}
-.stat-lbl{font-size:11px;color:var(--text3);margin-top:2px}
-.alert{padding:10px 12px;border-radius:var(--r);font-size:12px;margin-bottom:8px}
-.alert-red{background:var(--red-bg);color:var(--red)}
-.alert-orange{background:var(--orange-bg);color:var(--orange)}
-.cal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg2);border-bottom:1px solid var(--border)}
-.cal-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--text1)}
-.cal-btn{background:none;border:1px solid var(--border2);border-radius:8px;padding:5px 12px;font-size:14px;cursor:pointer;color:var(--text2)}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
-.cal-dh{text-align:center;padding:7px 2px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;background:var(--bg2);border-bottom:1px solid var(--border)}
-.cal-cell{min-height:60px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:3px;position:relative}
-.cal-cell:nth-child(7n){border-right:none}
-.cal-cell.other{background:var(--bg2)}
-.cal-cell.today{background:var(--accent-bg)}
-.cal-dn{font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:2px}
-.cal-cell.today .cal-dn{color:var(--accent)}
-.cal-dot{display:block;font-size:9px;padding:1px 4px;border-radius:3px;margin-bottom:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;font-weight:600}
-.cal-month-orders{padding:12px 14px;border-top:1px solid var(--border)}
-.cal-mo-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
-.cal-mo-num{font-weight:700;color:var(--accent);min-width:46px}
-.cal-mo-toy{color:var(--text2);flex:1}
-.modal-bg{position:fixed;inset:0;background:rgba(30,23,16,.55);z-index:200;display:flex;align-items:flex-end;justify-content:center}
-.modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
-.modal-title{font-family:'Playfair Display',serif;font-size:17px;margin-bottom:16px}
-.modal-actions{display:flex;gap:10px;margin-top:16px}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text1);color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:600;z-index:999;transition:transform .3s;pointer-events:none;white-space:nowrap}
+@media(max-width:420px){.form-grid{grid-template-columns:1fr}.span2{grid-column:span 1}}
+.radio-group{display:flex;gap:8px;flex-wrap:wrap}
+.radio-opt{flex:1;min-width:90px;position:relative}
+.radio-opt input{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;margin:0}
+.radio-opt .card-btn{display:flex;align-items:center;justify-content:center;padding:11px 8px;border-radius:var(--r);background:var(--input-bg);font-size:13px;font-weight:500;color:var(--text2);text-align:center;transition:all .15s}
+.radio-opt input:checked+.card-btn{background:var(--accent);color:var(--on-accent);font-weight:600}
+.checkbox-row{display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer;padding:6px 0;line-height:1.4;color:var(--text1)}
+.checkbox-row input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;margin-top:2px;flex-shrink:0}
+.btn{padding:13px 18px;border-radius:var(--r);border:none;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:var(--on-accent)}
+.btn-secondary{background:var(--bg2);color:var(--text2)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.price-box{background:var(--accent-bg);border-radius:var(--r);padding:16px;text-align:center;margin-top:4px;display:none}
+.price-box.show{display:block}
+.price-val{font-weight:700;letter-spacing:-.6px;font-size:30px;color:var(--accent)}
+.price-note{font-size:11px;color:var(--text2);margin-top:4px}
+.alert{padding:11px 13px;border-radius:var(--r);font-size:12px;margin-top:10px;line-height:1.6}
+.alert-orange{background:var(--orange-bg);color:var(--orange-ink)}
+.step-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:700;margin-right:7px;flex-shrink:0}
+.section-lbl{font-size:11px;font-weight:600;color:var(--text2);margin:14px 0 8px}
+.summary-box{background:var(--input-bg);border-radius:var(--r);padding:14px;font-size:13px;line-height:1.9;white-space:pre-wrap;color:var(--text1)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text1);color:var(--on-accent);padding:10px 22px;border-radius:30px;font-size:13px;z-index:999;transition:transform .3s;pointer-events:none;white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0)}
-.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.empty{text-align:center;padding:40px 20px;color:var(--text3)}
-.empty-icon{font-size:36px;margin-bottom:8px}
-.section-lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:4px}
-.pay-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;gap:8px}
-.week-chip{display:inline-block;padding:2px 7px;border-radius:12px;font-size:10px;font-weight:700;background:var(--blue-bg);color:var(--blue);margin-bottom:3px}
-.chip-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0}
-@media(max-width:400px){.form-grid{grid-template-columns:1fr}.span2{grid-column:span 1}}
+.hidden{display:none}
+.fade-in{animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.foot-note{text-align:center;font-size:11px;color:var(--text3);margin-top:6px;line-height:1.6}
 </style>
 </head>
 <body>
 
-<div class="stripe-bar"></div>
-<div id="login">
-  <div class="login-wrap">
-    <div style="font-family:'Playfair Display',serif;font-style:italic;font-size:42px;color:#635535;text-align:center;margin-bottom:6px">Марковка</div>
-    <div class="login-sub" id="login-sub">новорожденная игрушка</div>
-    <div id="login-error" style="display:none;background:#f5dada;color:#6e2222;border-radius:12px;padding:16px;text-align:center;font-size:13px;line-height:1.6;margin-top:8px"></div>
+<div class="wrap">
+  <div class="login-mark">
+    <svg class="logo-mark" viewBox="0 0 1348 390" role="img" aria-label="Марковка"><use href="#logo-markovka"/></svg>
   </div>
-</div>
+  <div class="tagline">новорождённая игрушка на заказ</div>
 
-<div id="app">
-  <div class="stripe-bar"></div>
-  <div class="app-header">
-    <div class="h-logo">Марковка</div>
-    <div class="h-right">
-      <span><span class="sync-dot"></span></span>
-      <span id="h-user-name" style="font-size:11px;color:var(--text2);font-weight:700"></span>
-      <div class="h-role" id="h-role-lbl"></div>
-      <div id="h-preview-badge" style="display:none;background:#f5dada;color:#6e2222;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px"></div>
-      <button id="btn-switch-role" class="btn-icon" style="display:none;font-size:13px;padding:4px 8px;border:1px solid var(--border2);border-radius:8px" onclick="showRoleSwitcher()">👁</button>
-      <button class="btn-icon" onclick="logout()">✕</button>
-    </div>
+  <div class="welcome">
+    <div class="welcome-title">Новорождённая игрушка по первым меркам вашего малыша</div>
+    <div class="welcome-text">Благодарю вас за доверие — я очень рада, что история моего мишки откликнулась вам. Благодаря своей команде мы можем принять ваш заказ уже сейчас.</div>
   </div>
-  <div class="tabs" id="tabs-bar"></div>
-  <div class="main" id="main"></div>
+
+  <!-- ШАГ 1: быстрый расчёт по весу -->
+  <div class="card" id="step1">
+    <div class="card-title">Рассчитать стоимость новорождённой игрушки</div>
+    <div class="card-sub">Введите вес малыша в граммах — мы покажем стоимость игрушки.</div>
+    <div class="fg">
+      <label>Вес малыша, г</label>
+      <input id="q-weight" type="number" inputmode="numeric" min="1" placeholder="Например, 3200" oninput="onWeightInput()">
+    </div>
+    <div class="price-box" id="price-box">
+      <div class="price-val" id="price-val">—</div>
+      <div class="price-note">В стоимость входит наряд для малыша — комбинезончик и воротничок. Вышивка имени и доставка — отдельно.</div>
+    </div>
+    <div class="alert alert-orange hidden" id="price-out-of-range">
+      Такой вес встречается редко — уточните точную стоимость у менеджера в Директ.
+    </div>
+    <button class="btn btn-primary" style="margin-top:14px" id="btn-to-order" disabled onclick="goToOrder()">Меня устраивает — оформить заказ</button>
+  </div>
+
+  <!-- ШАГ 2: полная форма заказа -->
+  <div class="card hidden" id="step2">
+    <div class="card-title"><span class="step-badge">2</span>Данные для заказа</div>
+    <div class="card-sub">Заполните все поля — в конце сформируется готовое сообщение для Директа.</div>
+
+    <div class="section-lbl">Контакты</div>
+    <div class="form-grid">
+      <div class="fg span2">
+        <label>ФИО</label>
+        <input id="o-name" placeholder="Иванова Анна Сергеевна">
+      </div>
+      <div class="fg span2">
+        <label>Номер телефона</label>
+        <input id="o-phone" type="tel" placeholder="+7 900 000-00-00">
+      </div>
+    </div>
+
+    <div class="section-lbl">О малыше</div>
+    <div class="form-grid">
+      <div class="fg">
+        <label>Вес, г</label>
+        <input id="o-weight" type="number" min="1" placeholder="3200" oninput="syncWeightFromOrder()">
+      </div>
+      <div class="fg">
+        <label>Рост, см</label>
+        <input id="o-height" type="number" min="1" placeholder="56">
+      </div>
+      <div class="fg span2">
+        <label>Пол малыша</label>
+        <div class="radio-group">
+          <label class="radio-opt"><input type="radio" name="gender" value="Мальчик"><span class="card-btn">Мальчик</span></label>
+          <label class="radio-opt"><input type="radio" name="gender" value="Девочка"><span class="card-btn">Девочка</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-lbl">Игрушка</div>
+    <div class="fg">
+      <label>Какую игрушку хотите?</label>
+      <div class="radio-group">
+        <label class="radio-opt"><input type="radio" name="toy" value="Мишка"><span class="card-btn">Мишка</span></label>
+        <label class="radio-opt"><input type="radio" name="toy" value="Мышка"><span class="card-btn">Мышка</span></label>
+        <label class="radio-opt"><input type="radio" name="toy" value="Зайка"><span class="card-btn">Зайка</span></label>
+      </div>
+    </div>
+    <div class="card-sub" style="margin:-6px 0 12px">В стоимость уже входит наряд для малыша — комбинезончик и воротничок.</div>
+    <label class="checkbox-row">
+      <input type="checkbox" id="o-emb" onchange="toggleEmb()">
+      <span>Добавить вышивку имени малыша на игрушке (+400 ₽)</span>
+    </label>
+    <div class="fg hidden" id="emb-name-row" style="padding-left:24px">
+      <label>Имя для вышивки</label>
+      <input id="o-emb-name" placeholder="Например, Мия">
+    </div>
+
+    <div class="section-lbl">Срок изготовления</div>
+    <div class="fg">
+      <label>Желаемый месяц и год изготовления</label>
+      <input id="o-month" type="month" placeholder="Месяц и год">
+    </div>
+
+    <div class="section-lbl">Доставка</div>
+    <div class="form-grid">
+      <div class="fg span2">
+        <label>Город</label>
+        <input id="o-city" placeholder="Москва">
+      </div>
+      <div class="fg span2">
+        <label>Адрес / пункт выдачи СДЭК</label>
+        <input id="o-address" placeholder="Ближайший ПВЗ СДЭК или адрес до двери">
+      </div>
+    </div>
+    <div class="alert alert-orange">
+      Доставка СДЭК оплачивается отдельно при получении заказа, в стоимость игрушки не входит. Палитра одежды для игрушки выбирается позже, на следующем этапе.
+    </div>
+
+    <div class="fg" style="margin-top:12px">
+      <label>Комментарий <span class="hint">(необязательно)</span></label>
+      <textarea id="o-comment" placeholder="Особые пожелания к заказу..."></textarea>
+    </div>
+
+    <button class="btn btn-primary" style="margin-top:6px" onclick="goToSummary()">Сформировать сообщение</button>
+    <button class="btn btn-secondary" style="margin-top:8px" onclick="backToStep1()">Назад к расчёту</button>
+  </div>
+
+  <!-- ШАГ 3: готовое сообщение -->
+  <div class="card hidden" id="step3">
+    <div class="card-title"><span class="step-badge">3</span>Ваше сообщение готово</div>
+    <div class="card-sub">Скопируйте сообщение и отправьте его нам в Директ — так мы обработаем ваш заказ быстрее.</div>
+    <div class="summary-box" id="summary-text"></div>
+    <button class="btn btn-primary" style="margin-top:14px" onclick="copySummary()">Скопировать сообщение</button>
+    <button class="btn btn-secondary" style="margin-top:8px" onclick="backToStep2()">Изменить данные</button>
+    <div class="foot-note">Отправьте скопированный текст в Директ — мы свяжемся с вами для подтверждения заказа.</div>
+  </div>
+
 </div>
 <div class="toast" id="toast"></div>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="logo-markovka" viewBox="252 79 1348 390"><path fill="currentColor" d="M597.76 245.92C596.89 251.14 569.92 265.93 551.94 273.76C532.51 282.17 515.4 290 500.32 290.58C495.1 290.87 489.01 286.52 490.46 281.3C492.49 273.76 504.38 258.68 512.5 244.18C519.75 231.13 533.09 211.12 538.6 201.26C532.51 205.03 523.23 211.41 510.18 219.82C498.29 227.65 482.92 236.93 468.42 249.4C453.63 262.45 424.05 295.8 420.86 295.22C416.8 294.35 411.87 293.19 412.16 289.42C412.74 281.01 425.5 267.96 449.28 236.06C464.65 215.47 480.89 192.56 490.75 172.26C494.52 164.72 498.58 157.76 499.74 152.54C485.82 164.43 444.35 194.01 400.56 226.78C354.74 261 300.51 295.51 283.4 294.64C274.12 294.06 260.78 290 260.78 273.76C260.78 267.09 270.06 247.66 275.86 246.5C280.5 245.63 281.66 246.5 282.24 252.3C282.82 257.81 275.28 264.19 275.28 267.38C275.28 274.34 277.02 281.88 285.14 281.88C300.8 281.88 347.49 254.62 386.64 224.46C420.28 198.65 450.44 176.32 473.06 158.34C489.01 145.58 523.81 118.9 531.06 119.48C534.25 119.77 538.89 120.64 537.44 125.28C535.41 131.37 524.39 141.23 515.4 157.18C509.89 166.46 502.64 182.12 495.1 194.88C487.85 207.35 474.51 226.2 471.32 231.42C479.15 227.36 495.39 216.92 507.28 209.38C518.3 202.42 532.8 192.56 542.66 185.6C549.62 178.35 554.26 171.97 561.8 164.14C567.02 158.34 577.46 146.16 582.68 146.16C588.48 146.16 593.12 151.09 592.54 156.6C592.25 160.37 583.84 166.17 578.62 172.84C572.24 180.96 558.32 192.56 550.78 206.48C540.34 226.2 511.05 267.96 510.76 273.18C510.76 274.63 511.92 276.37 513.08 276.66C516.56 277.24 536.57 269.41 550.78 263.32C567.89 255.78 589.35 240.7 592.54 240.7C595.44 240.7 598.34 242.44 597.76 245.92ZM753.438 247.66C753.438 249.98 729.948 265.35 711.388 277.82C694.568 289.13 672.818 298.12 661.218 298.12C655.418 298.12 645.558 293.77 643.238 285.36C642.368 282.17 642.078 274.92 642.948 269.7C636.858 273.76 626.708 279.85 620.328 283.04C609.018 288.84 595.098 292.32 589.878 292.32C584.658 292.32 572.478 289.42 572.478 274.34C572.478 263.9 584.948 245.92 598.868 231.13C612.208 216.34 631.348 199.81 639.758 200.1C648.748 200.39 658.608 206.48 664.118 214.02C668.468 219.53 669.338 225.91 670.208 228.81C678.908 223.59 674.848 220.4 679.778 220.98C683.838 221.27 688.478 224.17 687.898 227.94C687.318 231.13 682.098 238.38 674.848 246.21C670.208 251.43 665.278 256.94 660.348 261.29C656.288 270.86 653.388 272.89 654.258 278.98C654.838 283.33 657.738 286.52 662.958 286.52C669.338 286.52 683.548 281.59 705.008 269.12C719.508 260.71 745.318 241.57 749.378 241.28C752.858 240.99 753.438 244.47 753.438 247.66ZM658.898 230.26C658.898 224.75 649.328 211.41 641.498 211.7C634.828 211.99 617.718 226.78 606.118 239.54C595.968 250.85 583.498 269.99 584.078 274.34C584.948 279.85 586.978 280.72 592.778 281.3C596.258 281.59 607.568 276.95 616.848 272.02C634.828 262.74 651.358 250.27 658.318 240.99C658.318 238.09 658.898 234.61 658.898 230.26ZM901.619 243.6C901.329 251.14 885.669 260.13 872.039 269.12C852.899 281.59 836.369 291.45 820.419 291.74C813.169 291.74 808.239 283.91 808.819 276.66C809.399 269.41 819.549 257.52 826.219 249.98C829.699 245.92 838.399 239.54 840.719 232C832.019 236.93 822.449 239.83 810.559 245.34C795.479 253.75 771.119 263.61 761.839 266.8C752.269 277.53 708.479 328.57 672.519 365.98C640.619 399.33 588.999 461.97 582.039 461.68C580.299 461.68 577.689 460.81 577.399 458.78C576.819 450.66 631.339 397.01 666.139 357.86C686.439 335.24 693.979 327.7 718.339 299.86C735.449 280.43 763.289 248.24 770.539 239.54C765.029 241.86 766.189 241.86 759.519 245.34C752.269 249.4 747.629 256.94 743.279 256.36C740.669 256.07 738.929 253.75 737.479 251.14C735.739 247.66 752.849 237.51 765.899 230.26C778.079 223.59 783.879 218.66 793.159 213.44C799.539 208.22 804.179 205.32 807.949 206.19C810.849 206.77 812.299 207.93 812.299 210.54C812.299 214.31 803.019 220.69 797.219 227.36C790.259 235.19 782.429 244.18 779.819 247.66C787.359 245.92 793.739 243.6 816.359 232C827.669 225.91 853.479 215.76 858.699 215.76C861.019 215.76 861.889 218.95 861.599 221.56C860.729 227.36 853.769 236.35 840.139 249.98C834.339 256.07 820.129 270.86 820.419 276.66C820.709 279.56 821.579 281.3 824.479 281.3C830.569 281.3 851.159 271.15 866.819 261C878.709 253.17 893.499 241.57 896.979 241.28C899.009 240.99 901.619 241.57 901.619 243.6ZM1068.89 243.02C1069.47 249.11 1041.05 270.86 1023.07 278.4C1010.89 283.62 1002.19 286.52 989.428 286.52C977.538 286.52 970.578 282.17 965.068 273.76C962.458 270.28 960.428 264.19 957.528 259.26C952.308 263.61 946.508 267.09 939.548 273.18C934.908 276.95 925.048 293.48 920.408 293.48C917.218 293.48 913.738 292.32 912.868 289.42C911.708 285.07 930.558 267.67 937.228 259.84C947.088 248.53 959.848 233.74 959.848 226.78C959.848 223.59 958.688 221.56 954.628 220.98C949.988 220.4 934.908 228.81 922.728 235.48C908.808 243.02 885.898 261.87 882.128 261C878.068 260.13 874.588 259.84 875.748 255.78C876.618 252.88 906.778 232.29 915.768 227.94C924.468 223.59 945.058 211.99 956.368 210.54C963.618 209.67 972.028 214.89 972.028 220.98C972.318 229.97 966.518 236.64 966.228 244.18C971.448 244.18 982.758 234.03 993.488 227.94C1005.96 220.69 1020.17 208.8 1026.26 209.96C1028.29 210.25 1029.45 213.15 1029.45 215.18C1029.45 218.95 1013.79 226.49 1002.19 234.32C992.618 240.7 983.628 247.66 971.448 255.2C969.998 257.81 971.448 259.84 972.028 262.74C972.608 266.51 979.858 276.95 990.588 276.66C998.708 276.37 1006.25 275.5 1017.27 270.28C1034.96 261.87 1062.51 240.12 1065.99 240.12C1069.47 240.12 1068.6 240.7 1068.89 243.02ZM1147.24 240.41C1147.24 252.3 1136.8 265.06 1124.33 275.21C1109.83 287.1 1090.69 292.03 1078.51 291.74C1057.63 291.16 1049.51 277.53 1050.09 265.64C1050.38 258.39 1055.31 246.79 1064.01 241.57C1066.91 239.83 1070.68 240.12 1073.29 240.12C1076.77 238.09 1079.96 233.16 1083.44 230.84C1097.65 222.43 1111.57 217.21 1120.85 217.21C1137.09 217.21 1147.24 227.07 1147.24 240.41ZM1136.22 238.67C1136.22 229.68 1128.39 228.81 1122.01 228.52C1112.73 228.23 1102.29 231.71 1092.72 239.54C1087.79 243.31 1086.92 249.69 1081.12 251.43C1078.22 252.01 1077.06 251.14 1073.58 251.43C1066.04 252.3 1061.69 264.19 1061.69 266.51C1061.69 274.34 1070.97 281.3 1081.41 281.3C1090.4 281.3 1103.74 276.37 1115.05 268.83C1124.91 262.16 1136.22 251.43 1136.22 238.67ZM1343.45 104.4C1344.03 110.49 1330.11 133.11 1308.07 149.93C1285.45 167.33 1250.65 185.6 1227.16 196.91C1222.23 202.13 1214.11 207.06 1207.15 214.89C1200.77 222.14 1195.55 228.81 1192.36 235.48C1197.87 233.74 1211.79 228.52 1220.78 229.1C1227.45 229.39 1235.57 235.77 1235.57 239.54C1235.57 248.24 1223.97 267.09 1211.79 281.01C1199.32 295.51 1186.85 304.79 1171.48 304.79C1167.71 304.79 1157.27 297.25 1157.85 290C1158.72 275.5 1160.46 268.54 1168.87 254.33C1174.96 244.18 1179.89 236.93 1185.4 227.94C1177.28 233.16 1173.8 236.93 1166.26 242.44C1156.11 249.69 1143.35 259.55 1139.58 260.13C1137.55 260.42 1135.81 257.81 1135.23 255.2C1134.65 252.01 1158.72 235.48 1168.29 228.23C1185.98 214.89 1201.64 202.13 1214.11 191.11C1226.58 178.64 1244.27 153.99 1273.85 126.15C1288.06 112.81 1314.74 87.87 1328.08 87.87C1337.07 87.87 1342.58 95.41 1343.45 104.4ZM1332.43 104.98C1333.59 101.79 1331.56 98.02 1328.66 97.73C1322.28 97.15 1297.34 118.32 1282.26 132.82C1263.41 150.22 1246.88 168.49 1238.47 180.38C1259.06 169.94 1282.55 156.02 1298.21 144.13C1317.06 129.92 1328.66 114.84 1332.43 104.98ZM1222.81 241.86C1222.81 240.12 1220.78 239.25 1219.04 239.25C1211.5 238.96 1191.2 246.79 1185.4 249.98C1183.37 252.3 1180.76 254.62 1175.83 263.9C1170.32 273.76 1168.58 283.91 1168.87 288.26C1169.16 291.45 1172.35 294.35 1175.83 294.06C1183.08 293.48 1193.23 285.94 1203.67 274.05C1213.24 263.03 1223.1 247.95 1222.81 241.86ZM1435.64 243.02C1436.22 249.11 1407.8 270.86 1389.82 278.4C1377.64 283.62 1368.94 286.52 1356.18 286.52C1344.29 286.52 1337.33 282.17 1331.82 273.76C1329.21 270.28 1327.18 264.19 1324.28 259.26C1319.06 263.61 1313.26 267.09 1306.3 273.18C1301.66 276.95 1291.8 293.48 1287.16 293.48C1283.97 293.48 1280.49 292.32 1279.62 289.42C1278.46 285.07 1297.31 267.67 1303.98 259.84C1313.84 248.53 1326.6 233.74 1326.6 226.78C1326.6 223.59 1325.44 221.56 1321.38 220.98C1316.74 220.4 1301.66 228.81 1289.48 235.48C1275.56 243.02 1252.65 261.87 1248.88 261C1244.82 260.13 1241.34 259.84 1242.5 255.78C1243.37 252.88 1273.53 232.29 1282.52 227.94C1291.22 223.59 1311.81 211.99 1323.12 210.54C1330.37 209.67 1338.78 214.89 1338.78 220.98C1339.07 229.97 1333.27 236.64 1332.98 244.18C1338.2 244.18 1349.51 234.03 1360.24 227.94C1372.71 220.69 1386.92 208.8 1393.01 209.96C1395.04 210.25 1396.2 213.15 1396.2 215.18C1396.2 218.95 1380.54 226.49 1368.94 234.32C1359.37 240.7 1350.38 247.66 1338.2 255.2C1336.75 257.81 1338.2 259.84 1338.78 262.74C1339.36 266.51 1346.61 276.95 1357.34 276.66C1365.46 276.37 1373 275.5 1384.02 270.28C1401.71 261.87 1429.26 240.12 1432.74 240.12C1436.22 240.12 1435.35 240.7 1435.64 243.02ZM1592.29 247.66C1592.29 249.98 1568.8 265.35 1550.24 277.82C1533.42 289.13 1511.67 298.12 1500.07 298.12C1494.27 298.12 1484.41 293.77 1482.09 285.36C1481.22 282.17 1480.93 274.92 1481.8 269.7C1475.71 273.76 1465.56 279.85 1459.18 283.04C1447.87 288.84 1433.95 292.32 1428.73 292.32C1423.51 292.32 1411.33 289.42 1411.33 274.34C1411.33 263.9 1423.8 245.92 1437.72 231.13C1451.06 216.34 1470.2 199.81 1478.61 200.1C1487.6 200.39 1497.46 206.48 1502.97 214.02C1507.32 219.53 1508.19 225.91 1509.06 228.81C1517.76 223.59 1513.7 220.4 1518.63 220.98C1522.69 221.27 1527.33 224.17 1526.75 227.94C1526.17 231.13 1520.95 238.38 1513.7 246.21C1509.06 251.43 1504.13 256.94 1499.2 261.29C1495.14 270.86 1492.24 272.89 1493.11 278.98C1493.69 283.33 1496.59 286.52 1501.81 286.52C1508.19 286.52 1522.4 281.59 1543.86 269.12C1558.36 260.71 1584.17 241.57 1588.23 241.28C1591.71 240.99 1592.29 244.47 1592.29 247.66ZM1497.75 230.26C1497.75 224.75 1488.18 211.41 1480.35 211.7C1473.68 211.99 1456.57 226.78 1444.97 239.54C1434.82 250.85 1422.35 269.99 1422.93 274.34C1423.8 279.85 1425.83 280.72 1431.63 281.3C1435.11 281.59 1446.42 276.95 1455.7 272.02C1473.68 262.74 1490.21 250.27 1497.17 240.99C1497.17 238.09 1497.75 234.61 1497.75 230.26Z"/></symbol></svg>
+
 <script>
-const STATUSES={
-  new:{label:'Новый',cls:'b-new'},
-  work:{label:'В работе',cls:'b-work'},
-  ready:{label:'Готов',cls:'b-ready'},
-  sent:{label:'Отправлен',cls:'b-sent'},
-  done:{label:'Доставлен',cls:'b-done'},
-};
-const SOURCES={
-  waiting:{label:'Лист ожидания',cls:'b-wait'},
-  instagram:{label:'Instagram',cls:'b-inst'},
-  personal:{label:'Личный',cls:'b-pers'},
-  site:{label:'Сайт',cls:'b-site'},
-};
-const MASTERS=['Даша','Света'];
+// Таблица: вес (верхняя граница диапазона, г) -> цена, ₽
+const PRICE_TABLE=[
+  {max:900, price:6600},
+  {max:1300,price:7200},
+  {max:1900,price:7700},
+  {max:2500,price:8200},
+  {max:3000,price:8500},
+  {max:3500,price:9100},
+  {max:3800,price:9600},
+  {max:4200,price:10200},
+  {max:5500,price:11500},
+];
+const EMB_PRICE=400;
 
-const ROLE_MAP={
-  '461599258': {role:'manager', name:'Александра', label:'Менеджер',    masterName:null},
-  '5158981366':{role:'director',name:'Даша',       label:'Руководитель',masterName:null},
-  '5273106995':{role:'master',  name:'Света',      label:'Мастер',      masterName:'Света'},
-};
-let role=null,masterName=null,tab='list',fStatus='all',fMonth='all',fMaster='all',fUrgent=false,search='',calDate=new Date();
-let realRole=null,isPreviewMode=false;
-let orders=[],tasks=[];
+function calcPrice(weightG){
+  const w=parseFloat(weightG);
+  if(!w||w<=0)return null;
+  for(const row of PRICE_TABLE){ if(w<=row.max) return row.price; }
+  return null; // вне таблицы — уточнять у менеджера
+}
+function fmt(n){return Math.round(n).toLocaleString('ru')+' ₽';}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toast._tm);
+  toast._tm=setTimeout(()=>t.classList.remove('show'),2200);
+}
 
-const JSONBIN_ID='6a209043f5f4af5e29b48f00';
-const JSONBIN_KEY='$2a$10$A3Zv7sJYjph22m6ZEvB5CeHxn5CBix9MSEQI7K5c313H0OAdZveeG';
-const JSONBIN_URL='https://api.jsonbin.io/v3/b/'+JSONBIN_ID;
+let lastPrice=null;
 
-async function loadData(){
+function onWeightInput(){
+  const w=document.getElementById('q-weight').value;
+  const box=document.getElementById('price-box');
+  const oor=document.getElementById('price-out-of-range');
+  const btn=document.getElementById('btn-to-order');
+  const price=calcPrice(w);
+  lastPrice=price;
+  if(!w){box.classList.remove('show');oor.classList.add('hidden');btn.disabled=true;return;}
+  if(price===null){
+    box.classList.remove('show');
+    oor.classList.remove('hidden');
+    btn.disabled=true;
+  }else{
+    document.getElementById('price-val').textContent=fmt(price);
+    box.classList.add('show');
+    oor.classList.add('hidden');
+    btn.disabled=false;
+  }
+}
+
+function goToOrder(){
+  document.getElementById('step1').classList.add('hidden');
+  const s2=document.getElementById('step2');
+  s2.classList.remove('hidden');s2.classList.add('fade-in');
+  document.getElementById('o-weight').value=document.getElementById('q-weight').value;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function backToStep1(){
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step1').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function backToStep2(){
+  document.getElementById('step3').classList.add('hidden');
+  document.getElementById('step2').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function syncWeightFromOrder(){
+  document.getElementById('q-weight').value=document.getElementById('o-weight').value;
+  onWeightInput();
+}
+function toggleEmb(){
+  const on=document.getElementById('o-emb').checked;
+  document.getElementById('emb-name-row').classList.toggle('hidden',!on);
+}
+
+function v(id){return document.getElementById(id).value.trim();}
+function radioVal(name){const el=document.querySelector('input[name="'+name+'"]:checked');return el?el.value:'';}
+const RU_MONTHS=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+function monthLbl(mv){
+  if(!mv)return'';
+  const[y,m]=mv.split('-').map(Number);
+  if(!y||!m)return'';
+  return RU_MONTHS[m-1]+' '+y;
+}
+
+function goToSummary(){
+  const name=v('o-name'),phone=v('o-phone'),weight=v('o-weight'),height=v('o-height');
+  const gender=radioVal('gender'),toy=radioVal('toy');
+  const month=v('o-month');
+  const city=v('o-city'),address=v('o-address');
+  const embOn=document.getElementById('o-emb').checked;
+  const embName=v('o-emb-name');
+  const comment=v('o-comment');
+
+  if(!name){toast('Укажите ФИО');return;}
+  if(!phone){toast('Укажите номер телефона');return;}
+  if(!weight){toast('Укажите вес малыша');return;}
+  if(!height){toast('Укажите рост малыша');return;}
+  if(!gender){toast('Выберите пол малыша');return;}
+  if(!toy){toast('Выберите игрушку');return;}
+  if(!month){toast('Укажите желаемый месяц изготовления');return;}
+  if(!city){toast('Укажите город доставки');return;}
+  if(!address){toast('Укажите адрес или ПВЗ СДЭК');return;}
+  if(embOn&&!embName){toast('Укажите имя для вышивки');return;}
+
+  const price=calcPrice(weight);
+  if(price===null){toast('Такой вес вне стандартного расчёта — уточните цену у менеджера');return;}
+  const total=price+(embOn?EMB_PRICE:0);
+
+  let msg='Здравствуйте! Хочу оформить заказ на игрушку.\n\n';
+  msg+='ФИО: '+name+'\n';
+  msg+='Телефон: '+phone+'\n\n';
+  msg+='Вес малыша: '+weight+' г\n';
+  msg+='Рост малыша: '+height+' см\n';
+  msg+='Пол малыша: '+gender+'\n\n';
+  msg+='Игрушка: '+toy+'\n';
+  msg+='Наряд: комбинезончик и воротничок (входит в стоимость)\n';
+  msg+=embOn?'Вышивка имени: «'+embName+'» (+400 ₽)\n':'Вышивка имени: без вышивки\n';
+  msg+='Стоимость игрушки: '+fmt(total)+'\n\n';
+  msg+='Желаемый месяц изготовления: '+monthLbl(month)+'\n\n';
+  msg+='Доставка: СДЭК\n';
+  msg+='Город: '+city+'\n';
+  msg+='Адрес / ПВЗ: '+address+'\n';
+  msg+='(доставка оплачивается отдельно при получении)\n\n';
+  msg+='Палитра одежды: выберем на следующем этапе\n';
+  if(comment)msg+='\nКомментарий: '+comment+'\n';
+
+  document.getElementById('summary-text').textContent=msg;
+  document.getElementById('step2').classList.add('hidden');
+  const s3=document.getElementById('step3');
+  s3.classList.remove('hidden');s3.classList.add('fade-in');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function copySummary(){
+  const text=document.getElementById('summary-text').textContent;
   try{
-    const r=await fetch(JSONBIN_URL+'/latest',{headers:{'X-Master-Key':JSONBIN_KEY,'X-Bin-Meta':'false'}});
-    if(!r.ok)throw new Error('fail');
-    return await r.json();
+    await navigator.clipboard.writeText(text);
+    toast('Сообщение скопировано');
   }catch(e){
-    try{const d=localStorage.getItem('markovka_data');return d?JSON.parse(d):null;}catch(e2){return null;}
+    const ta=document.createElement('textarea');
+    ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');toast('Сообщение скопировано');}
+    catch(e2){toast('Не удалось скопировать — выделите текст вручную');}
+    document.body.removeChild(ta);
   }
 }
-async function saveData(ords,tsks){
-  const payload={orders:ords,tasks:tsks};
-  try{localStorage.setItem('markovka_data',JSON.stringify(payload));}catch(e){}
-  try{
-    await fetch(JSONBIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY,'X-Bin-Meta':'false'},body:JSON.stringify(payload)});
-  }catch(e){console.warn('save error',e);}
-}
-async function saveOrders(ords){orders=ords;await saveData(ords,tasks);}
-async function saveTasks(tsks){tasks=tsks;await saveData(orders,tsks);}
-
-function uid(){return '_'+Math.random().toString(36).substr(2,9)}
-function fmt(n){return(Math.round(n)||0).toLocaleString('ru')+' \u20bd'}
-
-function seedOrders(){
-  const now=new Date(),m=now.getMonth()+1,y=now.getFullYear();
-  const mo=y+'-'+String(m).padStart(2,'0');
-  return[
-    {id:uid(),num:'М-001',client:'Анна Петрова',phone:'+7 900 123-45-67',address:'Москва, Ленина 5',toyType:'Мишка',toys:'Мишка 3200г',weightG:3200,heightCm:56,embCount:1,count:1,price:14000,prepaid:7000,advancePaid:false,postpayPaid:false,month:mo,master:'Даша',source:'whatsapp',status:'work',urgent:false,sdek:false,comment:'Вышивка имени',deliveryDay:12,created:Date.now()-86400000*3},
-    {id:uid(),num:'М-002',client:'Мария Сидорова',phone:'+7 911 987-65-43',address:'СПб, Невский 10',toyType:'Мишка',toys:'Мишка 2800г',weightG:2800,heightCm:52,embCount:0,count:1,price:13200,prepaid:0,advancePaid:false,postpayPaid:false,month:mo,master:'Света',source:'telegram',status:'new',urgent:true,sdek:false,comment:'Срочно к 15-му!',deliveryDay:15,created:Date.now()-86400000},
-  ];
-}
-
-function maxDay(mv){if(!mv)return 31;const[y,m]=mv.split('-').map(Number);return new Date(y,m,0).getDate();}
-function clampDay(dv,mv){const d=parseInt(dv)||0;return d?Math.min(d,maxDay(mv)):0;}
-function updateDayMax(mid,did){
-  const mo=document.getElementById(mid),dd=document.getElementById(did);
-  if(!mo||!dd)return;
-  const mx=maxDay(mo.value);dd.max=mx;
-  if(parseInt(dd.value)>mx)dd.value=mx;
-}
-
-async function initTelegramAuth(){
-  let attempts=0;
-  while(!(window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.initDataUnsafe)&&attempts<20){
-    await new Promise(r=>setTimeout(r,150));attempts++;
-  }
-  const tg=window.Telegram&&window.Telegram.WebApp;
-  let tgId=null;
-  if(tg){
-    try{tg.ready();}catch(e){}
-    try{tg.expand();}catch(e){}
-    if(tg.initDataUnsafe&&tg.initDataUnsafe.user)tgId=String(tg.initDataUnsafe.user.id);
-  }
-  if(!tgId){const p=new URLSearchParams(window.location.search);tgId=p.get('dev_uid');}
-  if(!tgId){
-    document.getElementById('login-sub').textContent='';
-    document.getElementById('login-error').style.display='block';
-    document.getElementById('login-error').innerHTML='Откройте приложение через Telegram';
-    return;
-  }
-  const ui=ROLE_MAP[tgId];
-  if(!ui){
-    document.getElementById('login-sub').textContent='';
-    document.getElementById('login-error').style.display='block';
-    document.getElementById('login-error').innerHTML='Ваш аккаунт не добавлен.<br><small>ID: '+tgId+'</small>';
-    return;
-  }
-  await login(ui.role,ui.name,ui.label,ui.masterName);
-}
-
-async function login(r,userName,userLabel,mName){
-  role=r;masterName=mName;
-  const data=await loadData();
-  orders=(data&&Array.isArray(data.orders))?data.orders:seedOrders();
-  tasks=(data&&Array.isArray(data.tasks))?data.tasks:[];
-  if(!data)await saveData(orders,tasks);
-  document.getElementById('login').style.display='none';
-  document.getElementById('app').style.display='flex';
-  document.getElementById('h-role-lbl').textContent=userLabel;
-  document.getElementById('h-user-name').textContent=userName;
-  realRole=r;isPreviewMode=false;
-  document.getElementById('btn-switch-role').style.display=r==='manager'?'inline-flex':'none';
-  document.getElementById('h-preview-badge').style.display='none';
-  tab=r==='master'?'master':'list';
-  renderTabs();renderTab(tab);
-  startSync();
-}
-
-function logout(){
-  clearInterval(syncTimer);role=null;masterName=null;
-  document.getElementById('login').style.display='flex';
-  document.getElementById('app').style.display='none';
-  document.getElementById('login-sub').textContent='новорожденная игрушка';
-  document.getElementById('login-error').style.display='none';
-  initTelegramAuth();
-}
-
-let syncTimer=null;
-function startSync(){
-  syncTimer=setInterval(async function(){
-    const data=await loadData();
-    if(data){
-      if(JSON.stringify(data.orders)!==JSON.stringify(orders)){orders=data.orders||[];renderTab(tab);}
-      if(JSON.stringify(data.tasks)!==JSON.stringify(tasks)){tasks=data.tasks||[];if(tab==='tasks')renderTab(tab);}
-    }
-  },4000);
-}
-
-function showRoleSwitcher(){
-  const opts=[
-    {role:'director',name:'Даша',label:'Руководитель',masterName:''},
-    {role:'master',name:'Света',label:'Мастер',masterName:'Света'},
-    {role:'manager',name:'Александра',label:'Менеджер',masterName:''},
-  ];
-  const el=document.createElement('div');
-  el.id='role-switcher-modal';
-  el.style.cssText='position:fixed;inset:0;background:rgba(60,48,32,.5);z-index:300;display:flex;align-items:flex-end;justify-content:center';
-  let rows=opts.map(function(o){
-    const isCur=(isPreviewMode&&role===o.role)||(!isPreviewMode&&o.role==='manager');
-    return '<div onclick="switchPreview(\''+o.role+'\',\''+o.name+'\',\''+o.label+'\',\''+o.masterName+'\')" style="background:#fff;border:1.5px solid #e8e6cc;border-radius:12px;padding:12px 16px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">'
-      +'<div><div style="font-weight:700;color:#635535;font-size:14px">'+o.name+'</div><div style="font-size:11px;color:#b0a882">'+o.label+'</div></div>'
-      +(isCur?'<span style="font-size:11px;color:#a3cdd9;font-weight:700">● сейчас</span>':'<span style="color:#c8dde3;font-size:18px">›</span>')
-      +'</div>';
-  }).join('');
-  el.innerHTML='<div style="background:#f7f7e4;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:420px">'
-    +'<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:17px;color:#635535;margin-bottom:4px">Просмотр от лица</div>'
-    +'<div style="font-size:12px;color:#b0a882;margin-bottom:16px">Только просмотр — действия недоступны</div>'
-    +rows
-    +'<button onclick="document.getElementById(\'role-switcher-modal\').remove()" style="width:100%;padding:10px;background:none;border:1.5px solid #e8e6cc;border-radius:10px;font-family:\'Nunito\',sans-serif;font-size:13px;color:#b0a882;margin-top:4px;cursor:pointer">Отмена</button>'
-    +'</div>';
-  document.body.appendChild(el);
-  el.addEventListener('click',function(e){if(e.target===el)el.remove();});
-}
-
-function switchPreview(r,name,label,mName){
-  const modal=document.getElementById('role-switcher-modal');if(modal)modal.remove();
-  if(r==='manager'){
-    role='manager';masterName=null;isPreviewMode=false;
-    document.getElementById('h-user-name').textContent='Александра';
-    document.getElementById('h-role-lbl').textContent='Менеджер';
-    document.getElementById('h-preview-badge').style.display='none';
-  }else{
-    role=r;masterName=mName||null;isPreviewMode=true;
-    document.getElementById('h-user-name').textContent='';
-    document.getElementById('h-role-lbl').textContent=label;
-    document.getElementById('h-preview-badge').style.display='inline-block';
-    document.getElementById('h-preview-badge').textContent='👁 просмотр';
-  }
-  tab=r==='master'?'master':'list';
-  renderTabs();renderTab(tab);
-}
-
-function renderTabs(){
-  const bar=document.getElementById('tabs-bar');
-  const canEdit=role==='manager'||role==='director';
-  const all=role==='master'
-    ?[{id:'master',icon:'📋',label:'Заказы'},{id:'cal-master',icon:'📅',label:'Календарь'},{id:'tasks',icon:'✅',label:'Задачи'}]
-    :[
-      {id:'list',icon:'📋',label:'Заказы'},
-      {id:'calendar',icon:'📅',label:'Календарь'},
-      ...(canEdit?[{id:'add',icon:'➕',label:'Добавить'}]:[]),
-      {id:'tasks',icon:'✅',label:'Задачи'},
-      ...(role==='manager'?[{id:'stats',icon:'📊',label:'Итоги'}]:[]),
-      ...(role==='director'?[{id:'payments',icon:'💰',label:'Выплаты'}]:[]),
-    ];
-  bar.innerHTML=all.map(function(t){
-    return '<button class="tab '+(tab===t.id?'active':'')+'" onclick="renderTab(\''+t.id+'\')">'
-      +'<span style="font-size:16px">'+t.icon+'</span>'+t.label+'</button>';
-  }).join('');
-}
-
-function updateSearch(val){
-  search=val;
-  const cardsEl=document.getElementById('list-cards');
-  if(!cardsEl){renderTab('list');return;}
-  const list=getFilteredOrders();
-  cardsEl.innerHTML=list.length===0
-    ?'<div class="empty"><div class="empty-icon">🧸</div>Заказов не найдено</div>'
-    :list.map(function(o){return orderCard(o);}).join('');
-  // Keep focus on search field
-  const sf=document.getElementById('search-field');
-  if(sf&&document.activeElement!==sf){sf.focus();}
-}
-
-function renderTab(t){
-  tab=t;renderTabs();
-  const m=document.getElementById('main');
-  if(t==='list'){m.innerHTML=tplList();return;}
-  else if(t==='calendar')m.innerHTML=tplCalendar(false);
-  else if(t==='cal-master')m.innerHTML=tplCalendar(true);
-  else if(t==='add')m.innerHTML=tplAdd();
-  else if(t==='stats')m.innerHTML=tplStats();
-  else if(t==='tasks')m.innerHTML=tplTasks();
-  else if(t==='payments')m.innerHTML=tplPayments();
-  else m.innerHTML=tplMaster();
-}
-
-function moLbl(m){if(!m)return'';const[y,mo]=m.split('-');return new Date(y,mo-1).toLocaleString('ru',{month:'long',year:'numeric'});}
-
-function getFilteredOrders(){
-  return orders.filter(function(o){
-    if(fStatus!=='all'&&o.status!==fStatus)return false;
-    if(fUrgent&&!o.urgent)return false;
-    if(fMonth!=='all'&&o.month!==fMonth)return false;
-    if(fMaster!=='all'&&o.master!==fMaster)return false;
-    if(search){const q=search.toLowerCase();if(!o.num.toLowerCase().includes(q)&&!(o.client||'').toLowerCase().includes(q)&&!(o.toys||'').toLowerCase().includes(q))return false;}
-    return true;
-  }).sort(function(a,b){return b.created-a.created;});
-}
-
-function tplList(){
-  const months=[...new Set(orders.map(function(o){return o.month;}))].sort();
-  let list=getFilteredOrders();
-  const scol={new:'#3a8fa3',work:'#8a7a30',ready:'#2a7a45',sent:'#6b52a0',done:'#7a7570'};
-
-  let html='';
-  // Search field - rendered separately so it won't lose focus on card updates
-  html+='<input class="search-inp" id="search-field" style="width:100%;margin-bottom:10px" placeholder="Поиск по номеру, клиенту..." oninput="updateSearch(this.value)" value="'+search+'">';
-  // Status filters
-  html+='<div class="filters">';
-  html+='<button class="chip '+(fStatus==='all'?'active':'')+'" onclick="fStatus=\'all\';renderTab(\'list\')">Все статусы</button>';
-  Object.keys(STATUSES).forEach(function(k){
-    const isAct=fStatus===k;
-    const dot='<span style="width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;background:'+(isAct?'#fff':scol[k])+'"></span>';
-    html+='<button class="chip '+(isAct?'active':'')+'" onclick="fStatus=\''+k+'\';renderTab(\'list\')" style="display:inline-flex;align-items:center">'+dot+STATUSES[k].label+'</button>';
-  });
-  html+='</div>';
-  // Urgent filter
-  html+='<div class="filters">';
-  html+='<button class="chip '+(fUrgent?'active':'')+'" onclick="fUrgent=!fUrgent;renderTab(\'list\')" style="display:inline-flex;align-items:center"><span style="width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;background:'+(fUrgent?'#fff':'#6e2222')+'"></span>Срочные</button>';
-  html+='</div>';
-  // Month filters
-  html+='<div class="filters">';
-  html+='<button class="chip '+(fMonth==='all'?'active':'')+'" onclick="fMonth=\'all\';renderTab(\'list\')">Все месяцы</button>';
-  months.forEach(function(m){html+='<button class="chip '+(fMonth===m?'active':'')+'" onclick="fMonth=\''+m+'\';renderTab(\'list\')">'+moLbl(m)+'</button>';});
-  html+='</div>';
-  // Master filters
-  html+='<div class="filters">';
-  html+='<button class="chip '+(fMaster==='all'?'active':'')+'" onclick="fMaster=\'all\';renderTab(\'list\')">Все мастера</button>';
-  MASTERS.forEach(function(m){html+='<button class="chip '+(fMaster===m?'active':'')+'" onclick="fMaster=\''+m+'\';renderTab(\'list\')">'+m+'</button>';});
-  html+='</div>';
-  // Cards container
-  html+='<div id="list-cards">';
-  if(list.length===0){html+='<div class="empty"><div class="empty-icon">🧸</div>Заказов не найдено</div>';}
-  else{list.forEach(function(o){html+=orderCard(o);});}
-  html+='</div>';
-  return html;
-}
-
-
-function orderCard(o){
-  const st=STATUSES[o.status]||STATUSES.new;
-  const src=SOURCES[o.source]||{label:o.source||'—',cls:'b-wait'};
-  const paid=o.price>0&&o.prepaid>=o.price;
-  const isManager=role==='manager';
-  const canEdit=(role==='manager'||role==='director')&&!isPreviewMode;
-  const moStr=moLbl(o.month);
-  const rest=Math.max(0,(o.price||0)-(o.prepaid||0));
-
-  let badges='<span class="badge '+st.cls+'">'+st.label+'</span>';
-  if(o.urgent)badges+=' <span class="badge b-urgent">Срочно</span>';
-  if(paid)badges+=' <span class="badge b-paid">Оплачен</span>';
-  else if(o.prepaid>0)badges+=' <span class="badge b-part">Предоплата</span>';
-  badges+=' <span class="badge '+src.cls+'">'+src.label+'</span>';
-  if(o.sdek)badges+=' <span class="badge b-sdek">СДЭК</span>';
-  if(o.master==='Света'&&o.advancePaid)badges+=' <span class="badge b-paid">Аванс мастеру ✓</span>';
-  if(o.master==='Света'&&o.postpayPaid)badges+=' <span class="badge b-ready">Доплата мастеру ✓</span>';
-
-  let body='';
-  body+='<div class="cf"><span class="cf-l">Игрушка</span><span class="cf-v">'+(o.toyType||o.toys)+'</span></div>';
-  if(o.weightG)body+='<div class="cf"><span class="cf-l">Вес</span><span class="cf-v">'+o.weightG+'г</span></div>';
-  if(o.heightCm)body+='<div class="cf"><span class="cf-l">Рост</span><span class="cf-v">'+o.heightCm+' см</span></div>';
-  if(o.embCount)body+='<div class="cf"><span class="cf-l">Вышивка</span><span class="cf-v">×'+o.embCount+'</span></div>';
-  body+='<div class="cf"><span class="cf-l">Кол-во</span><span class="cf-v">'+o.count+' шт.</span></div>';
-  body+='<div class="cf"><span class="cf-l">Месяц</span><span class="cf-v">'+moStr+'</span></div>';
-  body+='<div class="cf"><span class="cf-l">Мастер</span><span class="cf-v">'+(o.master||'—')+'</span></div>';
-  if(isManager){
-    body+='<div class="cf"><span class="cf-l">Цена</span><span class="cf-v">'+fmt(o.price)+'</span></div>';
-    body+='<div class="cf"><span class="cf-l">Предоплата</span><span class="cf-v" style="color:'+(paid?'var(--green)':'var(--orange)')+'">'+fmt(o.prepaid)+'</span></div>';
-    body+='<div class="cf"><span class="cf-l">Остаток</span><span class="cf-v" style="color:'+(paid?'var(--text3)':'var(--red)')+'">'+fmt(rest)+'</span></div>';
-  }
-
-  let foot='<div class="card-comment">'+( o.comment||'')+'</div>';
-  foot+='<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">';
-  foot+='<div style="display:flex;flex-direction:column;gap:2px">';
-  foot+='<span style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Статус</span>';
-  foot+='<select class="st-select" onchange="setStatus(\''+o.id+'\',this.value)">';
-  Object.keys(STATUSES).forEach(function(k){
-    foot+='<option value="'+k+'"'+(o.status===k?' selected':'')+'>'+STATUSES[k].label+'</option>';
-  });
-  foot+='</select></div>';
-  if(canEdit&&!o.sdek){
-    foot+='<button class="btn btn-sm btn-ghost" style="font-size:11px;padding:4px 8px;margin-top:14px" onclick="markSdek(\''+o.id+'\')">СДЭК ✓</button>';
-  }
-  if(canEdit){
-    foot+='<button class="btn btn-sm btn-secondary" style="font-size:11px;padding:4px 10px;margin-top:14px" onclick="openEdit(\''+o.id+'\')">✏️ Изменить</button>';
-  }
-  foot+='</div>';
-
-  return '<div class="card '+(o.urgent?'urgent':'')+'" id="c-'+o.id+'">'
-    +'<div class="card-head"><div style="flex:1">'
-    +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">'
-    +'<span class="card-num">'+o.num+'</span>'+badges+'</div>'
-    +(isManager?'<div class="card-name">'+o.client+'</div>':'')
-    +'</div>'
-    +(canEdit?'<button style="background:none;border:none;color:#c8a0a0;font-size:20px;cursor:pointer;padding:0 4px;line-height:1" onclick="delOrder(\''+o.id+'\')">×</button>':'')
-    +'</div>'
-    +'<div class="card-body">'+body+'</div>'
-    +'<div class="card-foot">'+foot+'</div>'
-    +'</div>';
-}
-
-async function setStatus(id,val){
-  const o=orders.find(function(x){return x.id===id;});
-  if(o){o.status=val;await saveOrders(orders);toast('Статус обновлён');}
-}
-async function markSdek(id){
-  const o=orders.find(function(x){return x.id===id;});
-  if(o){o.sdek=true;await saveOrders(orders);renderTab(tab);toast('СДЭК отмечен');}
-}
-async function delOrder(id){
-  if(!confirm('Удалить заказ?'))return;
-  orders=orders.filter(function(x){return x.id!==id;});
-  await saveOrders(orders);renderTab(tab);toast('Заказ удалён');
-}
-function jumpTo(id){
-  fStatus='all';fMonth='all';search='';renderTab('list');
-  setTimeout(function(){
-    const el=document.getElementById('c-'+id);
-    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.outline='2px solid var(--accent)';setTimeout(function(){el.style.outline='';},2000);}
-  },80);
-}
-
-function tplCalendar(isMasterView){
-  const y=calDate.getFullYear(),m=calDate.getMonth();
-  const moStr=new Date(y,m).toLocaleString('ru',{month:'long',year:'numeric'});
-  const first=new Date(y,m,1).getDay();
-  const start=first===0?6:first-1;
-  const days=new Date(y,m+1,0).getDate();
-  const prevDays=new Date(y,m,0).getDate();
-  const today=new Date();
-  const moKey=y+'-'+String(m+1).padStart(2,'0');
-  const allForMonth=orders.filter(function(o){return o.month===moKey;});
-  const moOrders=isMasterView?allForMonth.filter(function(o){return o.master===masterName;}):allForMonth;
-  const colors={new:'#3a8fa3',work:'#8a7a30',ready:'#2a7a45',sent:'#6b52a0',done:'#7a7570'};
-  const tabId=isMasterView?'cal-master':'calendar';
-
-  let cells='';
-  for(let i=0;i<start;i++)cells+='<div class="cal-cell other"><span class="cal-dn">'+(prevDays-start+i+1)+'</span></div>';
-  for(let d=1;d<=days;d++){
-    const isT=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
-    const dayOs=moOrders.filter(function(o){return(o.deliveryDay||0)===d;});
-    let dots=dayOs.map(function(o){
-      const c=colors[o.status]||colors.work;
-      return '<span class="cal-dot" style="background:'+c+'22;color:'+c+'" onclick="jumpTo(\''+o.id+'\')">'+o.num+'</span>';
-    }).join('');
-    cells+='<div class="cal-cell'+(isT?' today':'')+'"><span class="cal-dn">'+d+'</span>'+dots+'</div>';
-  }
-  const rem=(start+days)%7;
-  for(let i=1;i<=(rem?7-rem:0);i++)cells+='<div class="cal-cell other"><span class="cal-dn">'+i+'</span></div>';
-
-  let moRows='';
-  if(moOrders.length===0){
-    moRows='<div style="padding:12px;text-align:center;font-size:13px;color:var(--text3)">Нет заказов</div>';
-  }else{
-    moOrders.forEach(function(o){
-      const st=STATUSES[o.status]||STATUSES.new;
-      moRows+='<div class="cal-mo-row">'
-        +'<span class="cal-mo-num">'+o.num+'</span>'
-        +'<span class="cal-mo-toy">'+o.toys+(o.urgent?' ⚡':'')+(o.deliveryDay?' · '+o.deliveryDay+'-го':'')+'</span>'
-        +'<span class="badge '+st.cls+'" style="font-size:9px">'+st.label+'</span>'
-        +'<span style="font-size:11px;color:var(--text3)">'+o.master+'</span>'
-        +'</div>';
-    });
-  }
-
-  let weekSummary='';
-  if(isMasterView){
-    const weeksMap={};
-    moOrders.forEach(function(o){
-      if(!o.deliveryDay)return;
-      const wk=Math.ceil(o.deliveryDay/7);
-      if(!weeksMap[wk])weeksMap[wk]=0;
-      weeksMap[wk]++;
-    });
-    const wkeys=Object.keys(weeksMap).sort();
-    if(wkeys.length){
-      weekSummary='<div style="padding:10px 14px;border-top:1px solid var(--border)">'
-        +'<div class="section-lbl">Нагрузка по неделям</div>';
-      wkeys.forEach(function(wk){
-        const cnt=weeksMap[wk];
-        const load=cnt>=4?'🔴 много':cnt>=2?'🟡 средне':'🟢 свободно';
-        weekSummary+='<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px;border-bottom:1px solid var(--border)">'
-          +'<span style="font-weight:700;color:var(--text2)">Неделя '+wk+'</span>'
-          +'<span style="color:var(--text3)">'+cnt+' заказов</span>'
-          +'<span>'+load+'</span>'
-          +'</div>';
-      });
-      weekSummary+='</div>';
-    }
-  }
-
-  return '<div class="card" style="margin-bottom:12px">'
-    +'<div class="cal-header">'
-    +'<button class="cal-btn" onclick="calNav(-1,\''+tabId+'\')">←</button>'
-    +'<div class="cal-title" style="text-transform:capitalize">'+moStr+'</div>'
-    +'<button class="cal-btn" onclick="calNav(1,\''+tabId+'\')">→</button>'
-    +'</div>'
-    +'<div class="cal-grid">'
-    +['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(function(d){return'<div class="cal-dh">'+d+'</div>';}).join('')
-    +cells
-    +'</div>'
-    +'<div class="cal-month-orders">'
-    +'<div class="section-lbl">Заказов в месяце — '+moOrders.length+'</div>'
-    +moRows
-    +'</div>'
-    +weekSummary
-    +'</div>';
-}
-function calNav(d,tabId){calDate=new Date(calDate.getFullYear(),calDate.getMonth()+d,1);renderTab(tabId||'calendar');}
-
-function tplAdd(){
-  const now=new Date();
-  const dm=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-  const toyTypes=['Мишка','Мышка','Зайка','Котик'];
-  return '<div class="form-section">'
-    +'<div class="form-title">Новый заказ</div>'
-    +'<div class="form-grid">'
-    +'<div class="fg span2"><label>Номер заказа</label><input id="fnum" placeholder="М-007, С030..."></div>'
-    +'<div class="fg span2"><label>Имя клиента</label><input id="fc" placeholder="Анна Петрова"></div>'
-    +'<div class="fg"><label>Телефон</label><input id="fp" type="tel" placeholder="+7 900 000-00-00"></div>'
-    +'<div class="fg"><label>Город и адрес</label><input id="fa" placeholder="Москва, ул. Ленина 1"></div>'
-    +'<div class="fg"><label>Тип игрушки</label><select id="ftoy">'+toyTypes.map(function(t){return'<option>'+t+'</option>';}).join('')+'</select></div>'
-    +'<div class="fg"><label>Количество</label><input id="fct" type="number" min="1" value="1"></div>'
-    +'<div class="fg"><label>Вес (г)</label><input id="fwg" type="number" placeholder="3200" oninput="previewMasterPay()"></div>'
-    +'<div class="fg"><label>Рост (см)</label><input id="fhcm" type="number" placeholder="56"></div>'
-    +'<div class="fg"><label>Цена (₽)</label><input id="fpr" type="number" placeholder="14000"></div>'
-    +'<div class="fg"><label>Предоплата (₽)</label><input id="fpre" type="number" value="0"></div>'
-    +'<div class="fg" style="min-width:0"><label>Месяц производства</label><input id="fm" type="month" style="width:100%" value="'+dm+'" oninput="updateDayMax(\'fm\',\'fdd\')"></div>'
-    +'<div class="fg"><label>Мастер</label><select id="fmas" oninput="previewMasterPay()">'+MASTERS.map(function(m){return'<option>'+m+'</option>';}).join('')+'</select></div>'
-    +'<div class="fg"><label>Источник</label><select id="fsrc">'+Object.keys(SOURCES).map(function(k){return'<option value="'+k+'">'+SOURCES[k].label+'</option>';}).join('')+'</select></div>'
-    +'<div class="fg"><label>Статус</label><select id="fst">'+Object.keys(STATUSES).map(function(k){return'<option value="'+k+'">'+STATUSES[k].label+'</option>';}).join('')+'</select></div>'
-    +'<div class="fg"><label>День сдачи (1–'+maxDay(dm)+')</label><input id="fdd" type="number" min="1" max="'+maxDay(dm)+'" placeholder="15" oninput="updateDayMax(\'fm\',\'fdd\')"></div>'
-    +'</div>'
-    +'<label class="checkbox-row"><input type="checkbox" id="femb" onchange="toggleEmbCount(\'femb\',\'femb-row\')"> Вышивка (+400₽ мастеру за каждую)</label>'
-    +'<div id="femb-row" style="display:none;padding:4px 0 8px 24px">'
-    +'<div class="fg"><label>Количество вышивок</label><input id="fembc" type="number" min="1" value="1" style="max-width:120px" oninput="previewMasterPay()"></div>'
-    +'</div>'
-    +'<label class="checkbox-row"><input type="checkbox" id="fur"> Срочный заказ</label>'
-    +'<label class="checkbox-row"><input type="checkbox" id="fsd"> Накладная СДЭК создана</label>'
-    +'<div class="fg" style="margin-top:8px"><label>Комментарий</label><textarea id="fcm" placeholder="Особые пожелания..."></textarea></div>'
-    +'<div id="master-pay-preview" style="display:none;background:var(--accent-bg);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:10px"></div>'
-    +'<button class="btn btn-primary btn-full" style="margin-top:4px" onclick="addOrder()">Сохранить заказ</button>'
-    +'</div>';
-}
-
-function toggleEmbCount(cbId,rowId){
-  var cb=document.getElementById(cbId);
-  var row=document.getElementById(rowId);
-  if(cb&&row)row.style.display=cb.checked?'block':'none';
-  previewMasterPay();
-}
-function previewMasterPay(){
-  var wEl=document.getElementById('fwg');
-  var mEl=document.getElementById('fmas');
-  var embEl=document.getElementById('femb');
-  var embcEl=document.getElementById('fembc');
-  var prev=document.getElementById('master-pay-preview');
-  if(!wEl||!mEl||!prev)return;
-  var w=parseFloat(wEl.value)||0;
-  var master=mEl.value;
-  var embOn=embEl&&embEl.checked;
-  var embCnt=embOn&&embcEl?parseInt(embcEl.value)||1:0;
-  var tmpO={master:master,weightG:w,embCount:embCnt};
-  var total=calcMasterPay(tmpO);
-  var adv=calcAdvance(tmpO);
-  var post=calcPostpay(tmpO);
-  if(!w&&master!=='Даша'){prev.style.display='none';return;}
-  prev.style.display='block';
-  if(master==='Света'){
-    var embNote=embCnt?' (включая вышивку '+fmt(embCnt*400)+')':'';
-    prev.innerHTML='<b>ЗП Светы:</b> '+fmt(total)+embNote+'<br>'
-      +'<span style="color:var(--text3)">Аванс (30%): '+fmt(adv)+' · Доплата (70%): '+fmt(post)+'</span>';
-  }else{
-    var embNote2=embCnt?' (включая вышивку '+fmt(embCnt*400)+')':'';
-    prev.innerHTML='<b>ЗП Даши:</b> '+fmt(total)+embNote2+'<br>'
-      +'<span style="color:var(--text3)">Выплачивается раз в неделю</span>';
-  }
-}
-async function addOrder(){
-  const c=v('fc'),num=v('fnum'),ftype=v('ftoy');
-  if(!num){toast('Укажите номер заказа');return;}
-  if(!c){toast('Укажите имя клиента');return;}
-  if(!ftype){toast('Укажите тип игрушки');return;}
-  if(orders.find(function(o){return o.num===num;})){toast('Такой номер уже существует');return;}
-  const embOn=document.getElementById('femb').checked;
-  const embCnt=embOn?parseInt(v('fembc'))||1:0;
-  const toyType=v('ftoy');
-  const weightG=parseFloat(v('fwg'))||0;
-  const heightCm=parseFloat(v('fhcm'))||0;
-  const o={
-    id:uid(),num:num,client:c,phone:v('fp'),address:v('fa'),
-    toyType:toyType,toys:toyType+(weightG?' '+weightG+'г':''),
-    weightG:weightG,heightCm:heightCm,embCount:embCnt,
-    count:parseInt(v('fct'))||1,price:parseFloat(v('fpr'))||0,
-    prepaid:parseFloat(v('fpre'))||0,advancePaid:false,postpayPaid:false,
-    month:v('fm'),master:v('fmas'),source:v('fsrc'),status:v('fst'),
-    deliveryDay:clampDay(v('fdd'),v('fm')),
-    urgent:document.getElementById('fur').checked,
-    sdek:document.getElementById('fsd').checked,
-    comment:v('fcm'),created:Date.now()
-  };
-  orders.unshift(o);
-  await saveOrders(orders);
-  toast('Заказ '+o.num+' добавлен');
-  renderTab('list');
-}
-
-function openEdit(id){
-  const o=orders.find(function(x){return x.id===id;});
-  if(!o)return;
-  const el=document.createElement('div');
-  el.className='modal-bg';el.id='edit-modal';
-  let masOpts=MASTERS.map(function(m){return'<option'+(o.master===m?' selected':'')+'>'+m+'</option>';}).join('');
-  let srcOpts=Object.keys(SOURCES).map(function(k){return'<option value="'+k+'"'+(o.source===k?' selected':'')+'>'+SOURCES[k].label+'</option>';}).join('');
-  let stOpts=Object.keys(STATUSES).map(function(k){return'<option value="'+k+'"'+(o.status===k?' selected':'')+'>'+STATUSES[k].label+'</option>';}).join('');
-  el.innerHTML='<div class="modal">'
-    +'<div class="modal-title">Редактировать '+o.num+'</div>'
-    +'<div class="form-grid">'
-    +'<div class="fg span2"><label>Номер заказа</label><input id="enum" value="'+o.num+'"></div>'
-    +'<div class="fg span2"><label>Клиент</label><input id="ec" value="'+(o.client||'')+'"></div>'
-    +'<div class="fg"><label>Телефон</label><input id="ep" value="'+(o.phone||'')+'"></div>'
-    +'<div class="fg"><label>Адрес</label><input id="ea" value="'+(o.address||'')+'"></div>'
-    +'<div class="fg span2"><label>Тип игрушки</label><select id="etoy">'+'<option value="Мишка"'+(o.toyType==='Мишка'?' selected':'')+'>Мишка</option>'+'<option value="Мышка"'+(o.toyType==='Мышка'?' selected':'')+'>Мышка</option>'+'<option value="Зайка"'+(o.toyType==='Зайка'?' selected':'')+'>Зайка</option>'+'<option value="Котик"'+(o.toyType==='Котик'?' selected':'')+'>Котик</option>'+'</select></div>'
-    +'<div class="fg"><label>Вес (г)</label><input id="ewg" type="number" value="'+(o.weight||'')+'" placeholder="3200"></div>'
-    +'<div class="fg"><label>Рост (см)</label><input id="ehcm" type="number" value="'+(o.height||'')+'" placeholder="40"></div>'
-    +'<div class="fg span2"><label>Доп. описание</label><input id="et" value="'+(o.extra||'')+'"></div>'
-    +'<div class="fg"><label>Кол-во</label><input id="ect" type="number" value="'+(o.count||1)+'"></div>'
-    +'<div class="fg"><label>Цена (₽)</label><input id="epr" type="number" value="'+(o.price||0)+'"></div>'
-    +'<div class="fg"><label>Предоплата (₽)</label><input id="epre" type="number" value="'+(o.prepaid||0)+'"></div>'
-    +'<div class="fg" style="min-width:0"><label>Месяц</label><input id="em" type="month" style="width:100%" value="'+(o.month||'')+'" oninput="updateDayMax(\'em\',\'edd\')"></div>'
-    +'<div class="fg"><label>Мастер</label><select id="emas">'+masOpts+'</select></div>'
-    +'<div class="fg"><label>Источник</label><select id="esrc">'+srcOpts+'</select></div>'
-    +'<div class="fg"><label>Статус</label><select id="est">'+stOpts+'</select></div>'
-    +'<div class="fg"><label>День сдачи (1–'+maxDay(o.month)+')</label><input id="edd" type="number" min="1" max="'+maxDay(o.month)+'" value="'+(o.deliveryDay||'')+'" oninput="updateDayMax(\'em\',\'edd\')"></div>'
-    +'</div>'
-    +'<label class="checkbox-row"><input type="checkbox" id="eur"'+(o.urgent?' checked':'')+'>  Срочный</label>'
-    +'<label class="checkbox-row"><input type="checkbox" id="esd"'+(o.sdek?' checked':'')+'>  СДЭК создана</label>'
-    +'<div class="fg" style="margin-top:8px"><label>Комментарий</label><textarea id="ecm">'+(o.comment||'')+'</textarea></div>'
-    +'<div class="modal-actions">'
-    +'<button class="btn btn-ghost" onclick="closeModal()">Отмена</button>'
-    +'<button class="btn btn-primary" onclick="saveEdit(\''+o.id+'\')">Сохранить</button>'
-    +'</div>'
-    +'</div>';
-  document.body.appendChild(el);
-  el.addEventListener('click',function(e){if(e.target===el)closeModal();});
-}
-
-async function saveEdit(id){
-  const o=orders.find(function(x){return x.id===id;});
-  if(!o)return;
-  const newNum=v('enum');
-  if(!newNum){toast('Укажите номер');return;}
-  const conflict=orders.find(function(x){return x.num===newNum&&x.id!==id;});
-  if(conflict){toast('Такой номер уже существует');return;}
-  o.num=newNum;o.client=v('ec');o.phone=v('ep');o.address=v('ea');
-  const eToyType=v('etoy');
-  const eWg=parseFloat(v('ewg'))||0;
-  o.toyType=eToyType;o.weight=eWg;o.height=parseFloat(v('ehcm'))||0;
-  o.extra=v('et');
-  o.toys=eToyType+(eWg?' '+eWg+'г':'')+(v('et')?' '+v('et'):'');
-  o.count=parseInt(v('ect'))||1;
-  o.price=parseFloat(v('epr'))||0;o.prepaid=parseFloat(v('epre'))||0;
-  o.month=v('em');o.master=v('emas');o.source=v('esrc');o.status=v('est');
-  o.deliveryDay=clampDay(v('edd'),v('em'));
-  o.urgent=document.getElementById('eur').checked;
-  o.sdek=document.getElementById('esd').checked;
-  o.comment=v('ecm');
-  await saveOrders(orders);
-  closeModal();toast('Заказ сохранён');renderTab(tab);
-}
-
-function closeModal(){
-  const m=document.getElementById('edit-modal');if(m)m.remove();
-}
-
-function tplStats(){
-  const mo=orders.filter(function(o){return o.status!=='done';});
-  const rev=mo.reduce(function(s,o){return s+o.price;},0);
-  const pre=mo.reduce(function(s,o){return s+o.prepaid;},0);
-  const urg=mo.filter(function(o){return o.urgent;}).length;
-  const noPre=mo.filter(function(o){return o.prepaid===0;}).length;
-  const noSdek=mo.filter(function(o){return(o.status==='ready'||o.status==='work')&&!o.sdek;}).length;
-  return '<div class="stats-grid">'
-    +'<div class="stat-card"><div class="stat-val">'+mo.length+'</div><div class="stat-lbl">Активных заказов</div></div>'
-    +'<div class="stat-card"><div class="stat-val" style="color:var(--green)">'+fmt(pre)+'</div><div class="stat-lbl">Получено предоплат</div></div>'
-    +'<div class="stat-card"><div class="stat-val" style="color:var(--orange)">'+fmt(rev-pre)+'</div><div class="stat-lbl">К доплате</div></div>'
-    +'<div class="stat-card"><div class="stat-val" style="color:var(--red)">'+noPre+'</div><div class="stat-lbl">Без предоплаты</div></div>'
-    +'</div>'
-    +(noSdek>0?'<div class="alert alert-orange">'+noSdek+' заказов без накладной СДЭК</div>':'')
-    +(noPre>0?'<div class="alert alert-red">'+noPre+' заказов без предоплаты</div>':'')
-    +(urg>0?'<div class="alert alert-red">'+urg+' срочных заказов</div>':'')
-    +'<div class="card" style="padding:14px;margin-top:4px">'
-    +'<div class="section-lbl">По мастерам</div>'
-    +MASTERS.map(function(m){
-      const mos=orders.filter(function(o){return o.master===m;});
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">'
-        +'<span style="font-weight:700">'+m+'</span>'
-        +'<span style="color:var(--text3)">'+mos.length+' заказов</span>'
-        +'<span style="color:var(--accent);font-weight:700">'+fmt(mos.reduce(function(s,o){return s+o.price;},0))+'</span>'
-        +'</div>';
-    }).join('')
-    +'</div>';
-}
-
-function tplPayments(){
-  var needAdv=orders.filter(function(o){return o.master==='Света'&&o.status==='new'&&!o.advancePaid;});
-  var needPost=orders.filter(function(o){return(o.status==='ready'||o.status==='done')&&!o.postpayPaid;});
-  var advDone=orders.filter(function(o){return o.advancePaid&&!o.postpayPaid;});
-  var allDone=orders.filter(function(o){return o.postpayPaid;});
-
-  var html='<div class="section-lbl">Аванс Свете (новые) — '+needAdv.length+'</div>';
-  if(!needAdv.length){html+='<div class="empty" style="padding:12px 0"><div style="font-size:20px">✓</div>Все авансы выплачены</div>';}
-  else{needAdv.forEach(function(o){html+=payRow(o,'advance');});}
-
-  html+='<div class="section-lbl" style="margin-top:16px">Доплата мастеру (готовы) — '+needPost.length+'</div>';
-  if(!needPost.length){html+='<div class="empty" style="padding:12px 0"><div style="font-size:20px">✓</div>Все доплаты выплачены</div>';}
-  else{needPost.forEach(function(o){html+=payRow(o,'postpay');});}
-
-  if(advDone.length){
-    html+='<div class="section-lbl" style="margin-top:16px">Аванс выплачен, ждём готовности — '+advDone.length+'</div>';
-    advDone.forEach(function(o){html+=payRow(o,'adv-done');});
-  }
-  if(allDone.length){
-    html+='<div class="section-lbl" style="margin-top:16px">Полностью выплачено — '+allDone.length+'</div>';
-    allDone.forEach(function(o){html+=payRow(o,'pay-done');});
-  }
-  return html;
-}
-
-function payRow(o,type){
-  var total=calcMasterPay(o);
-  var adv=calcAdvance(o);
-  var post=calcPostpay(o);
-  var wInfo=o.weightG?o.weightG+'г':'—';
-  var eInfo=o.embCount?' + вышивка ×'+o.embCount:'';
-  var info='<div style="font-size:12px;color:var(--text3);margin-bottom:8px">'+(o.toyType||o.toys)+' · '+wInfo+eInfo+' · '+moLbl(o.month)+'</div>';
-  var head='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
-    +'<span class="card-num">'+o.num+'</span>'
-    +'<span style="font-size:12px;font-weight:600;color:var(--text2)">'+o.master+'</span>'
-    +'<span class="badge '+(STATUSES[o.status]||STATUSES.new).cls+'">'+(STATUSES[o.status]||STATUSES.new).label+'</span>'
-    +'</div>';
-  var oid=o.id;
-  var btnAdv='<button class="btn btn-sm btn-primary" data-id="'+oid+'" data-type="advance" onclick="markPayBtn(this)">Выплатить аванс '+fmt(adv)+'</button>';
-  var btnPost='<button class="btn btn-sm btn-primary" data-id="'+oid+'" data-type="postpay" onclick="markPayBtn(this)">Выплатить '+fmt(post)+'</button>';
-  var btnUndoAdv='<button class="btn btn-sm" style="background:var(--red-bg);color:var(--red);border:1px solid #f0c0c0;padding:3px 8px;font-size:11px" data-id="'+oid+'" data-type="advance" onclick="undoPayBtn(this)">Отменить</button>';
-  var btnUndoPost='<button class="btn btn-sm" style="background:var(--red-bg);color:var(--red);border:1px solid #f0c0c0;padding:3px 8px;font-size:11px" data-id="'+oid+'" data-type="postpay" onclick="undoPayBtn(this)">Отменить</button>';
-  var body='';
-  if(type==='advance'){
-    var pLbl=o.master==='Света'?'Доплата 70%':'Выплата';
-    body='<div class="pay-row"><span style="color:var(--text3)">ЗП итого</span><span style="font-weight:700">'+fmt(total)+'</span></div>'
-      +'<div class="pay-row"><span style="color:var(--text3)">Аванс (30%)</span><span style="font-weight:700;color:var(--accent)">'+fmt(adv)+'</span></div>'
-      +'<div class="pay-row"><span style="color:var(--text3)">'+pLbl+'</span><span style="font-weight:700;color:var(--text2)">'+fmt(post)+'</span></div>'
-      +'<div style="margin-top:10px">'+btnAdv+'</div>';
-  }else if(type==='postpay'){
-    var pLbl2=o.master==='Света'?'Доплата (70%)':'Выплата';
-    body='<div class="pay-row"><span style="color:var(--text3)">ЗП итого</span><span style="font-weight:700">'+fmt(total)+'</span></div>'
-      +(o.advancePaid?'<div class="pay-row"><span style="color:var(--text3)">Аванс выплачен</span><span style="color:var(--green)">'+fmt(adv)+' ✓</span></div>':'')
-      +'<div class="pay-row"><span style="color:var(--text3)">'+pLbl2+'</span><span style="font-weight:700;color:var(--accent)">'+fmt(post)+'</span></div>'
-      +'<div style="margin-top:10px">'+btnPost+'</div>';
-  }else if(type==='adv-done'){
-    body='<div class="pay-row" style="justify-content:space-between">'
-      +'<span style="color:var(--green)">Аванс '+fmt(adv)+' выплачен ✓</span>'
-      +btnUndoAdv+'</div>'
-      +'<div class="pay-row"><span style="color:var(--text3)">Остаток после готовности</span><span style="font-weight:700">'+fmt(post)+'</span></div>';
-  }else if(type==='pay-done'){
-    body='<div class="pay-row" style="justify-content:space-between">'
-      +'<span style="color:var(--green)">Полностью выплачено '+fmt(total)+' ✓</span>'
-      +btnUndoPost+'</div>';
-  }
-  return '<div class="card" style="margin-bottom:8px"><div style="padding:12px 14px">'+head+info+body+'</div></div>';
-}
-
-function calcZpSveta(weightG,embCount){
-  var w=parseFloat(weightG)||0;
-  var base;
-  if(w<1900)base=2300;
-  else if(w<2500)base=2500;
-  else if(w<3000)base=2700;
-  else if(w<3400)base=2800;
-  else if(w<3800)base=2900;
-  else if(w<4400)base=3100;
-  else if(w<=5500)base=3400;
-  else base=Math.floor((1800+w*0.3)/100)*100;
-  return base+(parseInt(embCount)||0)*400;
-}
-function calcMasterPay(o){
-  if(o.master==='Света') return calcZpSveta(o.weightG,o.embCount);
-  return 2500+(parseInt(o.embCount)||0)*400;
-}
-function calcAdvance(o){
-  if(o.master==='Света') return Math.round(calcMasterPay(o)*0.3);
-  return 0;
-}
-function calcPostpay(o){
-  if(o.master==='Света') return calcMasterPay(o)-calcAdvance(o);
-  return calcMasterPay(o);
-}
-
-
-function markPayBtn(el){markPay(el.dataset.id,el.dataset.type);}
-function undoPayBtn(el){undoPay(el.dataset.id,el.dataset.type);}
-async function markPay(id,type){
-  var o=orders.find(function(x){return x.id===id;});
-  if(!o)return;
-  if(type==='advance')o.advancePaid=true;
-  if(type==='postpay')o.postpayPaid=true;
-  await saveOrders(orders);renderTab('payments');toast('Выплата отмечена ✓');
-}
-async function undoPay(id,type){
-  var o=orders.find(function(x){return x.id===id;});
-  if(!o)return;
-  if(type==='advance')o.advancePaid=false;
-  if(type==='postpay')o.postpayPaid=false;
-  await saveOrders(orders);renderTab('payments');toast('Выплата отменена');
-}
-
-
-
-function updateDeliveryDayEl(el){updateDeliveryDay(el.dataset.oid,el.value);}
-async function updateDeliveryDay(id,val){
-  var o=orders.find(function(x){return x.id===id;});
-  if(!o)return;
-  o.deliveryDay=parseInt(val)||0;
-  await saveOrders(orders);toast('День сдачи обновлён');
-}
-
-function setStatusMasterEl(el){setStatusMaster(el.dataset.oid,el.value);}
-async function setStatusMaster(id,newStatus){
-  var o=orders.find(function(x){return x.id===id;});
-  if(!o)return;
-  if(newStatus==='work'&&o.master==='Света'&&!o.advancePaid){
-    toast('⚠️ Сначала нужно выплатить аванс!');
-    renderTab(tab);
-    return;
-  }
-  o.status=newStatus;
-  await saveOrders(orders);renderTab(tab);toast((STATUSES[newStatus]||{label:newStatus}).label);
-}
-
-function setMasterFilter(st,mo){
-  if(st!==null)fStatus=st;
-  if(mo!==null)fMonth=mo;
-  renderTab('master');
-}
-function tplMaster(){
-  var myBase=masterName?orders.filter(function(o){return o.master===masterName;}):orders;
-  var months=[...new Set(myBase.map(function(o){return o.month;}))].sort();
-  var filtered=myBase.filter(function(o){
-    if(fStatus!=='all'&&o.status!==fStatus)return false;
-    if(fMonth!=='all'&&o.month!==fMonth)return false;
-    return o.status!=='done'&&o.status!=='sent';
-  }).sort(function(a,b){var r={work:0,ready:1,new:2};return(r[a.status]||3)-(r[b.status]||3);});
-  var inW=myBase.filter(function(o){return o.status==='work';}).length;
-  var rdy=myBase.filter(function(o){return o.status==='ready';}).length;
-  var html='<div class="stats-grid" style="margin-bottom:10px">'
-    +'<div class="stat-card"><div class="stat-val">'+inW+'</div><div class="stat-lbl">В работе</div></div>'
-    +'<div class="stat-card"><div class="stat-val">'+rdy+'</div><div class="stat-lbl">Готовы</div></div>'
-    +'</div>';
-  html+='<div class="filters" style="margin-bottom:10px">';
-  [['all','Все'],['new','🟡 Новые'],['work','🔵 В работе'],['ready','🟢 Готовы']].forEach(function(p){
-    html+='<button class="chip '+(fStatus===p[0]?'active':'')+'" data-v="'+p[0]+'" onclick="setMasterFilter(this.dataset.v,null)">'+p[1]+'</button>';
-  });
-  html+='</div>';
-  html+='<div class="filters" style="margin-bottom:10px">';
-  html+='<button class="chip '+(fMonth==='all'?'active':'')+'" data-v="all" onclick="setMasterFilter(null,this.dataset.v)">Все месяцы</button>';
-  months.forEach(function(m){html+='<button class="chip '+(fMonth===m?'active':'')+'" data-v="'+m+'" onclick="setMasterFilter(null,this.dataset.v)">'+moLbl(m)+'</button>';});
-  html+='</div>';
-  if(!filtered.length){html+='<div class="empty"><div class="empty-icon">🎉</div>Нет заказов</div>';return html;}
-  filtered.forEach(function(o){
-    var st=STATUSES[o.status]||STATUSES.new;
-    var advWarn=(o.master==='Света'&&o.status==='new'&&!o.advancePaid)
-      ?'<div style="margin-top:6px;padding:6px 10px;background:var(--orange-bg);border-radius:8px;font-size:12px;color:var(--orange)">⚠️ Ожидает выплаты аванса — статус нельзя изменить</div>':'';
-    var detailLine='<div style="font-size:12px;color:var(--text3);margin-top:2px">'
-      +(o.toyType?o.toyType:'')+(o.weightG?' · '+o.weightG+'г':'')
-      +(o.heightCm?' · '+o.heightCm+' см':'')+(o.embCount?' · вышивка ×'+o.embCount:'')+'</div>';
-    html+='<div class="card '+(o.urgent?'urgent':'')+'" style="margin-bottom:10px">'
-      +'<div style="padding:12px 14px">'
-      +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">'
-      +'<span class="card-num">'+o.num+'</span><span class="badge '+st.cls+'">'+st.label+'</span>'
-      +(o.urgent?'<span class="badge b-urgent">⚡ Срочно</span>':'')+'</div>'
-      +'<div style="font-size:15px;font-weight:700">'+(o.toyType||o.toys)+'</div>'
-      +detailLine
-      +'<div style="font-size:12px;color:var(--text3);margin-top:2px">'+o.count+' шт. · '+moLbl(o.month)+'</div>'
-      +'<div style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;color:var(--text3)">'
-      +'<span>Сдать:</span>'
-      +'<input type="number" min="1" max="31" value="'+(o.deliveryDay||'')+'" placeholder="день" '
-      +'style="width:54px;padding:3px 6px;border-radius:6px;border:1px solid var(--border2);font-size:12px;background:var(--bg)" '
-      +'data-oid="'+o.id+'" onchange="updateDeliveryDayEl(this)">-го числа</div>'
-      +advWarn+'</div>'
-      +'<div class="card-foot"><span></span>'
-      +'<div style="display:flex;flex-direction:column;gap:2px">'
-      +'<span style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Статус</span>'
-      +'<select class="st-select" data-oid="'+o.id+'" onchange="setStatusMasterEl(this)">'
-      +Object.keys(STATUSES).map(function(k){return'<option value="'+k+'"'+(o.status===k?' selected':'')+'>'+STATUSES[k].label+'</option>';}).join('')
-      +'</select></div></div></div>';
-  });
-  return html;
-}
-
-function tplTasks(){
-  const myName=role==='master'?masterName:null;
-  const visible=myName?tasks.filter(function(t){return t.to===myName||t.from===myName;}):tasks;
-  const open=visible.filter(function(t){return!t.done;}).sort(function(a,b){return b.created-a.created;});
-  const done=visible.filter(function(t){return t.done;}).sort(function(a,b){return b.created-a.created;}).slice(0,15);
-  const names=['Александра','Даша','Света'];
-  const fromName=role==='master'?'Света':role==='director'?'Даша':'Александра';
-  const toOpts=names.filter(function(n){return n!==fromName;}).map(function(n){return'<option value="'+n+'">'+n+'</option>';}).join('')+'<option value="all">Всем</option>';
-
-  let html='<div class="form-section" style="margin-bottom:12px">'
-    +'<div class="form-title" style="font-size:14px;margin-bottom:10px">Новая задача</div>'
-    +'<div class="fg"><label>Кому</label><select id="task-to">'+toOpts+'</select></div>'
-    +'<div class="fg"><label>Задача</label><textarea id="task-text" placeholder="Заказать ткань, уточнить размер..." style="min-height:70px"></textarea></div>'
-    +'<button class="btn btn-primary btn-full" onclick="addTask()">Добавить задачу</button>'
-    +'</div>';
-
-  if(open.length===0&&done.length===0){html+='<div class="empty"><div class="empty-icon">✅</div>Задач нет</div>';}
-  if(open.length>0){
-    html+='<div class="section-lbl">Открытые · '+open.length+'</div>';
-    open.forEach(function(t){html+=taskCard(t);});
-  }
-  if(done.length>0){
-    html+='<div class="section-lbl" style="margin-top:14px">Выполненные</div>';
-    done.forEach(function(t){html+=taskCard(t);});
-  }
-  return html;
-}
-
-function taskCard(t){
-  const canAct=(role==='manager'||role==='director')||(role==='master'&&t.to===masterName);
-  const dt=new Date(t.created).toLocaleString('ru',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-  const toLabel=t.to==='all'?'Всем':t.to;
-  let btns='';
-  if(canAct&&!isPreviewMode){
-    btns='<div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">';
-    if(!t.done)btns+='<button class="btn btn-sm" style="background:#d9f0e3;color:#2a7a45;border:none;font-size:11px;padding:4px 10px;border-radius:8px" onclick="doneTask(\''+t.id+'\')">✓ Готово</button>';
-    if(role!=='master')btns+='<button style="background:none;border:none;color:#c8a0a0;font-size:18px;padding:0 4px;line-height:1;cursor:pointer" onclick="delTask(\''+t.id+'\')">×</button>';
-    btns+='</div>';
-  }
-  return '<div class="card" style="margin-bottom:8px;opacity:'+(t.done?'.55':'1')+'">'
-    +'<div style="padding:12px 14px;display:flex;align-items:flex-start;gap:10px">'
-    +'<div style="flex:1">'
-    +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:5px">'
-    +'<span class="badge b-new" style="'+(t.done?'text-decoration:line-through':'')+'">→ '+toLabel+'</span>'
-    +'<span style="font-size:10px;color:var(--text3);padding:2px 0">от '+t.from+'</span>'
-    +'</div>'
-    +'<div style="font-size:13px;color:var(--text1);line-height:1.4">'+t.text+'</div>'
-    +'<div style="font-size:10px;color:var(--text3);margin-top:4px">'+dt+'</div>'
-    +'</div>'+btns
-    +'</div></div>';
-}
-
-async function addTask(){
-  const text=v('task-text');
-  if(!text){toast('Напишите задачу');return;}
-  const fromName=role==='master'?'Света':role==='director'?'Даша':'Александра';
-  const to=document.getElementById('task-to').value;
-  const t={id:uid(),from:fromName,to:to,text:text,done:false,created:Date.now()};
-  tasks.unshift(t);
-  await saveTasks(tasks);
-  toast('Задача добавлена');renderTab('tasks');
-}
-async function doneTask(id){
-  const t=tasks.find(function(x){return x.id===id;});
-  if(t){t.done=true;await saveTasks(tasks);renderTab('tasks');}
-}
-async function delTask(id){
-  tasks=tasks.filter(function(x){return x.id!==id;});
-  await saveTasks(tasks);renderTab('tasks');
-}
-
-function v(id){const el=document.getElementById(id);return el?el.value.trim():'';}
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
-
-window.addEventListener('load',initTelegramAuth);
 </script>
 </body>
 </html>
