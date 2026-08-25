@@ -73,6 +73,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .price-box.show{display:block}
 .price-val{font-weight:700;letter-spacing:-.6px;font-size:30px;color:var(--accent)}
 .price-note{font-size:11px;color:var(--text2);margin-top:4px}
+.price-prepay{font-size:13px;color:var(--text2);margin-top:8px;font-weight:500}
+.price-prepay b{color:var(--accent)}
 .alert{padding:11px 13px;border-radius:var(--r);font-size:12px;margin-top:10px;line-height:1.6}
 .alert-orange{background:var(--orange-bg);color:var(--orange-ink)}
 .step-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:700;margin-right:7px;flex-shrink:0}
@@ -109,6 +111,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
     </div>
     <div class="price-box" id="price-box">
       <div class="price-val" id="price-val">—</div>
+      <div class="price-prepay" id="price-prepay"></div>
       <div class="price-note">В стоимость входит наряд для малыша — комбинезончик и воротничок. Вышивка имени и доставка — отдельно.</div>
     </div>
     <div class="alert alert-orange hidden" id="price-out-of-range">
@@ -131,6 +134,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       <div class="fg span2">
         <label>Номер телефона</label>
         <input id="o-phone" type="tel" placeholder="+7 900 000-00-00">
+      </div>
+      <div class="fg span2">
+        <label>Ник в Instagram</label>
+        <input id="o-insta" placeholder="@ваш_ник" oninput="formatInsta(this)">
       </div>
     </div>
 
@@ -176,6 +183,14 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
     <div class="fg">
       <label>Желаемый месяц и год изготовления</label>
       <input id="o-month" type="month" placeholder="Месяц и год">
+    </div>
+    <label class="checkbox-row">
+      <input type="checkbox" id="o-day-toggle" onchange="toggleDay()">
+      <span>Нужно к определённому числу</span>
+    </label>
+    <div class="fg hidden" id="day-row" style="padding-left:24px">
+      <label>Число</label>
+      <input id="o-day" type="number" min="1" max="31" placeholder="Например, 15">
     </div>
 
     <div class="section-lbl">Доставка</div>
@@ -231,6 +246,7 @@ const PRICE_TABLE=[
   {max:5500,price:11500},
 ];
 const EMB_PRICE=400;
+const PREPAY_RATE=0.3;
 
 function calcPrice(weightG){
   const w=parseFloat(weightG);
@@ -262,6 +278,7 @@ function onWeightInput(){
     btn.disabled=true;
   }else{
     document.getElementById('price-val').textContent=fmt(price);
+    document.getElementById('price-prepay').innerHTML='Предоплата при заказе 30%: <b>'+fmt(price*PREPAY_RATE)+'</b>';
     box.classList.add('show');
     oor.classList.add('hidden');
     btn.disabled=false;
@@ -293,6 +310,15 @@ function toggleEmb(){
   const on=document.getElementById('o-emb').checked;
   document.getElementById('emb-name-row').classList.toggle('hidden',!on);
 }
+function toggleDay(){
+  const on=document.getElementById('o-day-toggle').checked;
+  document.getElementById('day-row').classList.toggle('hidden',!on);
+  if(!on)document.getElementById('o-day').value='';
+}
+function formatInsta(el){
+  let val=el.value.replace(/@/g,'');
+  el.value=val?'@'+val:'';
+}
 
 function v(id){return document.getElementById(id).value.trim();}
 function radioVal(name){const el=document.querySelector('input[name="'+name+'"]:checked');return el?el.value:'';}
@@ -305,9 +331,11 @@ function monthLbl(mv){
 }
 
 function goToSummary(){
-  const name=v('o-name'),phone=v('o-phone'),weight=v('o-weight'),height=v('o-height');
+  const name=v('o-name'),phone=v('o-phone'),insta=v('o-insta'),weight=v('o-weight'),height=v('o-height');
   const gender=radioVal('gender'),toy=radioVal('toy');
   const month=v('o-month');
+  const dayOn=document.getElementById('o-day-toggle').checked;
+  const day=v('o-day');
   const city=v('o-city'),address=v('o-address');
   const embOn=document.getElementById('o-emb').checked;
   const embName=v('o-emb-name');
@@ -315,11 +343,13 @@ function goToSummary(){
 
   if(!name){toast('Укажите ФИО');return;}
   if(!phone){toast('Укажите номер телефона');return;}
+  if(!insta||insta==='@'){toast('Укажите ник в Instagram');return;}
   if(!weight){toast('Укажите вес малыша');return;}
   if(!height){toast('Укажите рост малыша');return;}
   if(!gender){toast('Выберите пол малыша');return;}
   if(!toy){toast('Выберите игрушку');return;}
   if(!month){toast('Укажите желаемый месяц изготовления');return;}
+  if(dayOn&&!day){toast('Укажите число, к которому нужна игрушка');return;}
   if(!city){toast('Укажите город доставки');return;}
   if(!address){toast('Укажите адрес или ПВЗ СДЭК');return;}
   if(embOn&&!embName){toast('Укажите имя для вышивки');return;}
@@ -327,18 +357,21 @@ function goToSummary(){
   const price=calcPrice(weight);
   if(price===null){toast('Такой вес вне стандартного расчёта — уточните цену у менеджера');return;}
   const total=price+(embOn?EMB_PRICE:0);
+  const prepay=Math.round(total*PREPAY_RATE);
 
   let msg='Здравствуйте! Хочу оформить заказ на игрушку.\n\n';
   msg+='ФИО: '+name+'\n';
-  msg+='Телефон: '+phone+'\n\n';
+  msg+='Телефон: '+phone+'\n';
+  msg+='Instagram: '+insta+'\n\n';
   msg+='Вес малыша: '+weight+' г\n';
   msg+='Рост малыша: '+height+' см\n';
   msg+='Пол малыша: '+gender+'\n\n';
   msg+='Игрушка: '+toy+'\n';
   msg+='Наряд: комбинезончик и воротничок (входит в стоимость)\n';
   msg+=embOn?'Вышивка имени: «'+embName+'» (+400 ₽)\n':'Вышивка имени: без вышивки\n';
-  msg+='Стоимость игрушки: '+fmt(total)+'\n\n';
-  msg+='Желаемый месяц изготовления: '+monthLbl(month)+'\n\n';
+  msg+='Стоимость игрушки: '+fmt(total)+'\n';
+  msg+='Предоплата 30%: '+fmt(prepay)+'\n\n';
+  msg+='Желаемый месяц изготовления: '+monthLbl(month)+(dayOn&&day?', к '+day+' числу':'')+'\n\n';
   msg+='Доставка: СДЭК\n';
   msg+='Город: '+city+'\n';
   msg+='Адрес / ПВЗ: '+address+'\n';
