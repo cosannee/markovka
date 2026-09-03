@@ -178,19 +178,38 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       <label>Имя для вышивки</label>
       <input id="o-emb-name" placeholder="Например, Мия">
     </div>
+    <label class="checkbox-row">
+      <input type="checkbox" id="o-bow">
+      <span>Добавить повязку-бантик на голову (+200 ₽)</span>
+    </label>
+    <label class="checkbox-row">
+      <input type="checkbox" id="o-cap">
+      <span>Добавить праздничный колпачок на голову (+300 ₽)</span>
+    </label>
 
     <div class="section-lbl">Срок изготовления</div>
     <div class="fg">
-      <label>Желаемый месяц и год изготовления</label>
-      <input id="o-month" type="month" placeholder="Месяц и год">
+      <div class="radio-group" style="flex-direction:column">
+        <label class="radio-opt" style="min-width:0"><input type="radio" name="timing" value="month" checked onchange="toggleTiming()"><span class="card-btn" style="justify-content:flex-start;text-align:left">Выбрать месяц изготовления</span></label>
+        <label class="radio-opt" style="min-width:0"><input type="radio" name="timing" value="rush" onchange="toggleTiming()"><span class="card-btn" style="justify-content:flex-start;text-align:left">Срочно, в течение 1–2 недель (+90% к стоимости игрушки)</span></label>
+      </div>
     </div>
-    <label class="checkbox-row">
-      <input type="checkbox" id="o-day-toggle" onchange="toggleDay()">
-      <span>Нужно к определённому числу</span>
-    </label>
-    <div class="fg hidden" id="day-row" style="padding-left:24px">
-      <label>Число</label>
-      <input id="o-day" type="number" min="1" max="31" placeholder="Например, 15">
+    <div id="timing-month-block">
+      <div class="fg">
+        <label>Желаемый месяц и год изготовления</label>
+        <input id="o-month" type="month" min="2026-11" placeholder="Месяц и год">
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" id="o-day-toggle" onchange="toggleDay()">
+        <span>Нужно к определённому числу</span>
+      </label>
+      <div class="fg hidden" id="day-row" style="padding-left:24px">
+        <label>Число</label>
+        <input id="o-day" type="number" min="1" max="31" placeholder="Например, 15">
+      </div>
+    </div>
+    <div class="alert alert-orange hidden" id="timing-rush-note">
+      Изготовим за 1–2 недели за доплату — стоимость игрушки вырастет на 90%. Точную дату согласуем в Директе.
     </div>
 
     <div class="section-lbl">Доставка</div>
@@ -246,6 +265,9 @@ const PRICE_TABLE=[
   {max:5500,price:11500},
 ];
 const EMB_PRICE=400;
+const BOW_PRICE=200;
+const CAP_PRICE=300;
+const RUSH_RATE=0.9;
 const PREPAY_RATE=0.3;
 
 function calcPrice(weightG){
@@ -315,6 +337,16 @@ function toggleDay(){
   document.getElementById('day-row').classList.toggle('hidden',!on);
   if(!on)document.getElementById('o-day').value='';
 }
+function toggleTiming(){
+  const rush=radioVal('timing')==='rush';
+  document.getElementById('timing-month-block').classList.toggle('hidden',rush);
+  document.getElementById('timing-rush-note').classList.toggle('hidden',!rush);
+  if(rush){
+    document.getElementById('o-month').value='';
+    document.getElementById('o-day-toggle').checked=false;
+    toggleDay();
+  }
+}
 function formatInsta(el){
   let val=el.value.replace(/@/g,'');
   el.value=val?'@'+val:'';
@@ -333,12 +365,16 @@ function monthLbl(mv){
 function goToSummary(){
   const name=v('o-name'),phone=v('o-phone'),insta=v('o-insta'),weight=v('o-weight'),height=v('o-height');
   const gender=radioVal('gender'),toy=radioVal('toy');
+  const timing=radioVal('timing');
+  const rushOn=timing==='rush';
   const month=v('o-month');
   const dayOn=document.getElementById('o-day-toggle').checked;
   const day=v('o-day');
   const city=v('o-city'),address=v('o-address');
   const embOn=document.getElementById('o-emb').checked;
   const embName=v('o-emb-name');
+  const bowOn=document.getElementById('o-bow').checked;
+  const capOn=document.getElementById('o-cap').checked;
   const comment=v('o-comment');
 
   if(!name){toast('Укажите ФИО');return;}
@@ -348,15 +384,16 @@ function goToSummary(){
   if(!height){toast('Укажите рост малыша');return;}
   if(!gender){toast('Выберите пол малыша');return;}
   if(!toy){toast('Выберите игрушку');return;}
-  if(!month){toast('Укажите желаемый месяц изготовления');return;}
-  if(dayOn&&!day){toast('Укажите число, к которому нужна игрушка');return;}
+  if(!rushOn&&!month){toast('Укажите желаемый месяц изготовления');return;}
+  if(!rushOn&&dayOn&&!day){toast('Укажите число, к которому нужна игрушка');return;}
   if(!city){toast('Укажите город доставки');return;}
   if(!address){toast('Укажите адрес или ПВЗ СДЭК');return;}
   if(embOn&&!embName){toast('Укажите имя для вышивки');return;}
 
-  const price=calcPrice(weight);
-  if(price===null){toast('Такой вес вне стандартного расчёта — уточните цену у менеджера');return;}
-  const total=price+(embOn?EMB_PRICE:0);
+  const basePrice=calcPrice(weight);
+  if(basePrice===null){toast('Такой вес вне стандартного расчёта — уточните цену у менеджера');return;}
+  const toyPrice=rushOn?Math.round(basePrice*(1+RUSH_RATE)):basePrice;
+  const total=toyPrice+(embOn?EMB_PRICE:0)+(bowOn?BOW_PRICE:0)+(capOn?CAP_PRICE:0);
   const prepay=Math.round(total*PREPAY_RATE);
 
   let msg='Здравствуйте! Хочу оформить заказ на игрушку.\n\n';
@@ -369,9 +406,11 @@ function goToSummary(){
   msg+='Игрушка: '+toy+'\n';
   msg+='Наряд: комбинезончик и воротничок (входит в стоимость)\n';
   msg+=embOn?'Вышивка имени: «'+embName+'» (+400 ₽)\n':'Вышивка имени: без вышивки\n';
+  if(bowOn)msg+='Повязка-бантик на голову (+200 ₽)\n';
+  if(capOn)msg+='Праздничный колпачок на голову (+300 ₽)\n';
+  msg+=rushOn?'Срок изготовления: срочно, 1–2 недели (+90% к стоимости игрушки)\n':'Желаемый месяц изготовления: '+monthLbl(month)+(dayOn&&day?', к '+day+' числу':'')+'\n';
   msg+='Стоимость игрушки: '+fmt(total)+'\n';
   msg+='Предоплата 30%: '+fmt(prepay)+'\n\n';
-  msg+='Желаемый месяц изготовления: '+monthLbl(month)+(dayOn&&day?', к '+day+' числу':'')+'\n\n';
   msg+='Доставка: СДЭК\n';
   msg+='Город: '+city+'\n';
   msg+='Адрес / ПВЗ: '+address+'\n';
