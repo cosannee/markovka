@@ -86,6 +86,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .fade-in{animation:fadeIn .25s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .foot-note{text-align:center;font-size:11px;color:var(--text3);margin-top:6px;line-height:1.6}
+.copy-instruction{background:var(--accent-bg);color:var(--accent2);border-radius:var(--r);padding:12px 14px;font-size:13px;font-weight:600;text-align:center;line-height:1.8;margin-bottom:12px}
+.copy-instruction-step{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:700;margin-right:4px}
+.copy-instruction-arrow{display:inline-block;margin:0 8px;color:var(--accent)}
+@media(max-width:380px){.copy-instruction-arrow{display:block;margin:4px 0}}
 </style>
 </head>
 <body>
@@ -191,7 +195,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
     <div class="fg">
       <div class="radio-group" style="flex-direction:column">
         <label class="radio-opt" style="min-width:0"><input type="radio" name="timing" value="month" checked onchange="toggleTiming()"><span class="card-btn" style="justify-content:flex-start;text-align:left">Выбрать месяц изготовления</span></label>
-        <label class="radio-opt" style="min-width:0"><input type="radio" name="timing" value="rush" onchange="toggleTiming()"><span class="card-btn" style="justify-content:flex-start;text-align:left">Срочно, в течение 1–2 недель (+90% к стоимости игрушки)</span></label>
+        <label class="radio-opt" style="min-width:0"><input type="radio" name="timing" value="rush" onchange="toggleTiming()"><span class="card-btn" style="justify-content:flex-start;text-align:left">Срочно, в течение 1–2 недель (+40% к стоимости игрушки)</span></label>
       </div>
     </div>
     <div id="timing-month-block">
@@ -209,7 +213,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       </div>
     </div>
     <div class="alert alert-orange hidden" id="timing-rush-note">
-      Изготовим за 1–2 недели за доплату — стоимость игрушки вырастет на 90%. Точную дату согласуем в Директе.
+      Изготовим за 1–2 недели за доплату — стоимость игрушки вырастет на 40%. Точную дату согласуем в Директе.
     </div>
 
     <div class="section-lbl">Доставка</div>
@@ -239,11 +243,16 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
   <!-- ШАГ 3: готовое сообщение -->
   <div class="card hidden" id="step3">
     <div class="card-title"><span class="step-badge">3</span>Ваше сообщение готово</div>
-    <div class="card-sub">Скопируйте сообщение и отправьте его нам в Директ — так мы обработаем ваш заказ быстрее.</div>
+    <div class="card-sub">Остался последний шаг — скопируйте сообщение ниже и отправьте его нам в Директ.</div>
+    <div class="copy-instruction">
+      <span class="copy-instruction-step">1</span> Нажмите «Скопировать сообщение»
+      <span class="copy-instruction-arrow">→</span>
+      <span class="copy-instruction-step">2</span> Вставьте и отправьте его нам в Директ
+    </div>
     <div class="summary-box" id="summary-text"></div>
     <button class="btn btn-primary" style="margin-top:14px" onclick="copySummary()">Скопировать сообщение</button>
     <button class="btn btn-secondary" style="margin-top:8px" onclick="backToStep2()">Изменить данные</button>
-    <div class="foot-note">Отправьте скопированный текст в Директ — мы свяжемся с вами для подтверждения заказа.</div>
+    <div class="foot-note">После отправки мы свяжемся с вами в Директе для подтверждения заказа.</div>
   </div>
 
 </div>
@@ -267,7 +276,7 @@ const PRICE_TABLE=[
 const EMB_PRICE=400;
 const BOW_PRICE=200;
 const CAP_PRICE=300;
-const RUSH_RATE=0.9;
+const RUSH_RATE=0.4;
 const PREPAY_RATE=0.3;
 
 function calcPrice(weightG){
@@ -408,7 +417,7 @@ function goToSummary(){
   msg+=embOn?'Вышивка имени: «'+embName+'» (+400 ₽)\n':'Вышивка имени: без вышивки\n';
   if(bowOn)msg+='Повязка-бантик на голову (+200 ₽)\n';
   if(capOn)msg+='Праздничный колпачок на голову (+300 ₽)\n';
-  msg+=rushOn?'Срок изготовления: срочно, 1–2 недели (+90% к стоимости игрушки)\n':'Желаемый месяц изготовления: '+monthLbl(month)+(dayOn&&day?', к '+day+' числу':'')+'\n';
+  msg+=rushOn?'Срок изготовления: срочно, 1–2 недели (+40% к стоимости игрушки)\n':'Желаемый месяц изготовления: '+monthLbl(month)+(dayOn&&day?', к '+day+' числу':'')+'\n';
   msg+='Стоимость игрушки: '+fmt(total)+'\n';
   msg+='Предоплата 30%: '+fmt(prepay)+'\n\n';
   msg+='Доставка: СДЭК\n';
