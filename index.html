@@ -184,10 +184,13 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
     </div>
     <div class="fg">
       <label id="toy-color-label">Цвет зверушки</label>
-      <div class="radio-group color-group" role="radiogroup" aria-labelledby="toy-color-label">
+      <div class="radio-group color-group" role="radiogroup" aria-labelledby="toy-color-label" onchange="toggleToyColorNote()">
         <label class="radio-opt"><input type="radio" name="toy-color" value="Серый"><span class="card-btn"><span class="color-swatch" style="background:#AAA9A5" aria-hidden="true"></span><span>Серый</span></span></label>
-        <label class="radio-opt"><input type="radio" name="toy-color" value="Белый"><span class="card-btn"><span class="color-swatch" style="background:#FFFFFF" aria-hidden="true"></span><span>Белый</span></span></label>
+        <label class="radio-opt"><input type="radio" name="toy-color" value="Белый" aria-describedby="toy-color-note"><span class="card-btn"><span class="color-swatch" style="background:#FFFFFF" aria-hidden="true"></span><span>Белый</span></span></label>
         <label class="radio-opt"><input type="radio" name="toy-color" value="Бежевый (классический)" checked><span class="card-btn"><span class="color-swatch" style="background:#D8C2A4" aria-hidden="true"></span><span>Бежевый<span class="color-caption">(классический)</span></span></span></label>
+      </div>
+      <div class="alert alert-orange hidden" id="toy-color-note" role="status">
+        Белая ткань может немного просвечивать, поэтому гранулы наполнителя иногда заметны. Пожалуйста, берегите изделие от влажной стирки 🤍
       </div>
     </div>
     <div class="card-sub" style="margin:-6px 0 12px">В стоимость уже входит наряд для малыша — комбинезончик и воротничок.</div>
@@ -354,6 +357,10 @@ function syncWeightFromOrder(){
   document.getElementById('q-weight').value=document.getElementById('o-weight').value;
   onWeightInput();
 }
+function toggleToyColorNote(){
+  const white=radioVal('toy-color')==='Белый';
+  document.getElementById('toy-color-note').classList.toggle('hidden',!white);
+}
 function toggleEmb(){
   const on=document.getElementById('o-emb').checked;
   document.getElementById('emb-name-row').classList.toggle('hidden',!on);
@@ -467,6 +474,8 @@ async function copySummary(){
     document.body.removeChild(ta);
   }
 }
+toggleToyColorNote();
+window.addEventListener('pageshow',toggleToyColorNote);
 </script>
 </body>
 </html>
